@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <f:metadata>
+        <f:viewAction action="#{topMenuController.init()}" />
+    </f:metadata>
+    <ui:composition template="/templates/window.xhtml">
+        <ui:define name="body">
+            <p:fieldset toggleable="true" legend="Thông tin chung" >
+                <h:panelGrid  style="text-align: center" >
+                    <p:row>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn sử dụng" style="margin: 0 10px 0 0"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn người mới"  style="margin: 0 10px 0 0"/>
+                        </p:column>
+                    </p:row>
+                </h:panelGrid>
+            </p:fieldset>
+            <p:spacer height="5"/>
+            <p:fieldset toggleable="true" legend="Các lỗi bugs thường gặp">
+                <h:panelGrid style="margin-bottom: 5px">
+                    <p:commandButton value="Danh sách Bugs"/>
+                </h:panelGrid>
+            </p:fieldset>
+            <p:spacer height="5"/>
+            <p:fieldset toggleable="true" legend="Công cụ hỗ trợ">
+                <h:panelGrid columns="3" style="margin-bottom: 5px">
+                    <p:row>
+                        <p:column>
+                            <p:commandButton value="Hàm chung thường dùng" style="margin: 0 10px 0 0"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="Từ điển thường dùng"/>
+                        </p:column>
+                    </p:row>
+                </h:panelGrid>
+                <p:panel header="Phát triển" toggleable="true">
+                    <h:panelGrid columns="3" >
+                        <p:row>
+                            <p:column >
+                                <p:commandButton value="Kiểm chứng source code" style="margin: 0 10px 0 0"/>
+                            </p:column>
+                            <p:column >
+                                <p:commandButton value="Kiểm chứng PCL" style="margin: 0 10px 0 0"/>
+                            </p:column>
+                        </p:row>
+                        <p:row>
+                            <p:column >
+                                <p:commandButton value="Kiểm chứng PCL (UT)"  style="margin: 0 10px 0 0"/>
+                            </p:column>
+                        </p:row>
+                    </h:panelGrid>
+                    <p:separator/>
+                    <h:panelGrid columns="3" >
+                        <p:row>
+                            <p:column >
+                                <p:commandButton value="Tạo source mẫu"  style="margin: 0 10px 0 0"/>
+                            </p:column>
+                            <p:column >
+                                <p:commandButton value="Chuyển đổi SQL Text sang code java" style="margin: 0 10px 0 0"/>
+                            </p:column>
+                        </p:row>
+                    </h:panelGrid>
+                </p:panel>
+                <p:spacer height="5"/>
+                <p:panel header="Database" toggleable="true">
+                    <h:panelGrid  style="text-align: center" >
+                        <p:row>
+                            <p:column>
+                                <p:commandButton value="Sinh dữ liệu động" />
+                            </p:column>
+                        </p:row>
+                    </h:panelGrid>
+                </p:panel>
+            </p:fieldset>
+            <p:spacer height="5"/>
+            <p:fieldset toggleable="true" legend="Dự án">
+
+            </p:fieldset>
+        </ui:define>
+    </ui:composition>
+</html>
+

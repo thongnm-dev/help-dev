@@ -3,9 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="internal-project">
-            <file>file:/E:/Works/internal-project/src/java/common/BaseController.java</file>
-            <file>file:/E:/Works/internal-project/src/java/gateway/UserGateway.java</file>
-            <file>file:/E:/Works/internal-project/src/java/common/BaseGateway.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/RoleIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/BugDetailIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/TableIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/TableDetailIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/BugIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/TaskIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/FuncIf.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/UserIF.java</file>
+            <file>file:/E:/Works/MyProjects/help-dev/internal-project/src/java/model/ProjectIF.java</file>
         </group>
     </open-files>
 </project-private>

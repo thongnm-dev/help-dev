@@ -1,4 +1,3 @@
-
 package model;
 
 import java.io.Serializable;
@@ -7,18 +6,25 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import lombok.Data;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "project_if")
-@Data
+@Table(name = "t_project")
+@Entity
+@Getter
+@Setter
+@ToString
 public class ProjectIF implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     /**
@@ -33,22 +39,15 @@ public class ProjectIF implements Serializable {
     @Column(name = "project_name")
     private String projectName;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumns(value = {
-        @JoinColumn(name = "usr_id"),
-        @JoinColumn(name = "project_id")
-    })
+    @ManyToMany(mappedBy = "projects")
     private Set<UserIF> users;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_func", columnDefinition = "func_id")
-    private Set<FuncIf> funcIfs;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
+    private Set<FuncIf> funcs;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_table", columnDefinition = "table_id")
-    private Set<TableIF> tableIFs;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
+    private Set<TableIF> tables;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_task", columnDefinition = "task_id")
-    private Set<TaskIF> taskIFs;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
+    private Set<BugIF> bugs;
 }

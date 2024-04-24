@@ -11,7 +11,7 @@
     </f:metadata>
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="body">
-            <p:fieldset toggleable="true" legend="Thông tin chung" >
+            <p:fieldset toggleable="true" legend="Thông tin chung" collapsed="true">
                 <h:panelGrid  style="text-align: center" >
                     <p:row>
                         <p:column>
@@ -24,13 +24,39 @@
                 </h:panelGrid>
             </p:fieldset>
             <p:spacer height="5"/>
-            <p:fieldset toggleable="true" legend="Các lỗi bugs thường gặp">
+            <p:fieldset toggleable="true" legend="Thông tin chung" collapsed="true">
+                <h:panelGrid  style="text-align: center" >
+                    <p:row>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn sử dụng" style="margin: 0 10px 0 0"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn người mới"  style="margin: 0 10px 0 0"/>
+                        </p:column>
+                    </p:row>
+                </h:panelGrid>
+            </p:fieldset>
+            <p:spacer height="5"/>
+            <p:fieldset toggleable="true" legend="Thông tin chung" collapsed="true">
+                <h:panelGrid  style="text-align: center" >
+                    <p:row>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn sử dụng" style="margin: 0 10px 0 0"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="Hướng dẫn người mới"  style="margin: 0 10px 0 0"/>
+                        </p:column>
+                    </p:row>
+                </h:panelGrid>
+            </p:fieldset>
+            <p:spacer height="5"/>
+            <p:fieldset toggleable="true" legend="Các lỗi bugs thường gặp" collapsed="true">
                 <h:panelGrid style="margin-bottom: 5px">
                     <p:commandButton value="Danh sách Bugs"/>
                 </h:panelGrid>
             </p:fieldset>
             <p:spacer height="5"/>
-            <p:fieldset toggleable="true" legend="Công cụ hỗ trợ">
+            <p:fieldset toggleable="true" legend="Công cụ hỗ trợ" collapsed="true">
                 <h:panelGrid columns="3" style="margin-bottom: 5px">
                     <p:row>
                         <p:column>

@@ -1,37 +1,31 @@
+
 package model;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Table(name = "t_bug")
+@Table(name = "t_user_guide")
 @Entity
 @Getter
 @Setter
 @ToString
-public class BugIF implements Serializable {
+public class UserGuideIF implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "bug_note")
-    private String bugNote;
+    @Column(name = "descript_note")
+    private String descriptNote;
 
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @OneToOne
-    @JoinColumn(name = "project_id")
-    private ProjectIF project;
+    @Column(name = "descript_note_v")
+    private String descriptNoteVn;
 }

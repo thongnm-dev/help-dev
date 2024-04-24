@@ -1,8 +1,7 @@
-
 package model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,10 +12,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import lombok.Data;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "table_if")
-@Data
+@Table(name = "t_table")
+@Entity
+@Getter
+@Setter
+@ToString
 public class TableIF implements Serializable {
 
     @Id
@@ -41,9 +46,9 @@ public class TableIF implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "project_id")
-    private ProjectIF projectIF;
+    private ProjectIF project;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_table_dtl", columnDefinition = "table_id")
-    private List<TableDetailIF> tableDetails;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
+    private Set<TableDetailIF> tableDtls;
+
 }

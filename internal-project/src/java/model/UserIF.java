@@ -5,17 +5,26 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import lombok.Data;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "user_if")
-@Data
+@Table(name = "t_user")
+@Entity
+@Getter
+@Setter
+@ToString
 public class UserIF implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     /**
@@ -36,11 +45,18 @@ public class UserIF implements Serializable {
     private String usrName;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumns(
-            value = {
-                @JoinColumn(name = "usr_id"),
-                @JoinColumn(name = "project_id")
-            }
+    @JoinTable(
+            name = "t_user_role",
+            joinColumns = @JoinColumn(name = "usr_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<ProjectIF> projectIFs;
+    private Set<RoleIF> roles;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "t_user_project",
+            joinColumns = @JoinColumn(name = "usr_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private Set<ProjectIF> projects;
 }

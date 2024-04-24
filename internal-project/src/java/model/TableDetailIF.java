@@ -9,10 +9,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import lombok.Data;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "table_dtl_if")
-@Data
+@Entity
+@Table(name = "t_table_dtl")
+@Getter
+@Setter
+@ToString
 public class TableDetailIF implements Serializable {
 
     @Id
@@ -60,5 +66,5 @@ public class TableDetailIF implements Serializable {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id")
-    private TableIF tableIF;
+    private TableIF table;
 }

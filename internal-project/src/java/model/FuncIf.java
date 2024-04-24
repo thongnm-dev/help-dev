@@ -3,14 +3,25 @@ package model;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import lombok.Data;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "func_if")
-@Data
+@Table(name = "t_func")
+@Entity
+@Getter
+@Setter
+@ToString
 public class FuncIf implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "func_name")
@@ -27,4 +38,8 @@ public class FuncIf implements Serializable {
 
     @Column(name = "func_comment_vn")
     private String funcCommentVn;
+
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private ProjectIF project;
 }

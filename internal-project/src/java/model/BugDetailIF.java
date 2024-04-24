@@ -7,10 +7,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import lombok.Data;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity(name = "bug_dtl_if")
-@Data
+@Table(name = "t_bug_dtl")
+@Entity
+@Getter
+@Setter
+@ToString
 public class BugDetailIF implements Serializable {
 
     @Id
@@ -20,5 +28,9 @@ public class BugDetailIF implements Serializable {
     private String title;
 
     @Column(name = "short_descript")
-    private String shortDescript;
+    private String descript;
+
+    @ManyToOne
+    @JoinColumn(name = "bug_id")
+    private BugIF bugIF;
 }

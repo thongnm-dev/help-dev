@@ -17,9 +17,8 @@
         <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css" />
     </h:head>
     <h:body>
-        <pe:layout>
-            <ui:insert name="menubar"/>
-            <pe:layoutPane position="center" id="body" minHeight="100vh">
+        <pe:layout  id="body">
+            <pe:layoutPane position="center">
                 <pe:layoutPane position="center">
                     <h:form id="mainForm" style="overflow: hidden">
                         <p:growl globalOnly="true" id="msg" showDetail="true" skipDetailIfEqualsSummary="true"/>
@@ -27,15 +26,12 @@
                         <p:panel>
                             <ui:insert name="body" />
                         </p:panel>
-                        <p:blockUI block="body">
-                            <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
-                        </p:blockUI>
                     </h:form>
                 </pe:layoutPane>
             </pe:layoutPane>
-            <pe:layoutPane position="south" closable="false" resizable="false">
-                <address style="padding: 5px 0 5px 0; text-align: center">#{bundle.Address}</address>
-            </pe:layoutPane>
         </pe:layout>
+        <p:blockUI block="body">
+            <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
+        </p:blockUI>
     </h:body>
 </html>

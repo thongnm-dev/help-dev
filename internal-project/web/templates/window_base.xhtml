@@ -2,9 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:pe="http://primefaces.org/ui/extensions"
-    xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:pe="http://primefaces.org/ui/extensions">
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="menubar">
                 <pe:layoutPane position="north" resizable="false" closable="false">
@@ -12,14 +10,10 @@
                 </pe:layoutPane>
         </ui:define>
         <ui:define name="content_header">
-            <p:panel class="content_title" id="content_title">
-                <ui:insert name="content_title"/>
-            </p:panel>
+            <ui:insert name="content_title"/>            
         </ui:define>
         <ui:define name="body">
-            <h:panelGrid>
-                <ui:insert name="container"/>
-            </h:panelGrid>
+            <ui:insert name="container"/>
             <ui:insert name="menubutton" />
         </ui:define>
     </ui:composition>

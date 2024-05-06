@@ -4,9 +4,36 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:p="http://primefaces.org/ui">
-          
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewAction action="#{dictionaryController.init()}" />
+    </f:metadata>
+
     <ui:composition template="/templates/window_base.xhtml">
-        
+        <ui:define name="content_title">
+            <p:panel class="content_title" id="content_title">
+                <h:outputLabel>Danh sách từ điển thường dùng</h:outputLabel>
+            </p:panel>
+        </ui:define>
+        <ui:define name="container">
+            <p:fieldset legend="#{bundle.FstSearch}" toggleable="true">
+
+            </p:fieldset>
+
+            <p:spacer height="2" />
+            <p:fieldset legend="#{bundle.FstList}">
+
+            </p:fieldset>
+        </ui:define>
+        <ui:define name="Func">
+            <pe:layoutPane position="south" closable="false" resizable="false">
+                <h:panelGrid style="padding: 0 10px 0 10px">
+                    <p:commandButton value="#{bundle.BackLabel}" />
+                </h:panelGrid>
+            </pe:layoutPane>
+        </ui:define>
+
     </ui:composition>
 </html>

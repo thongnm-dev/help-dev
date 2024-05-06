@@ -15,22 +15,25 @@
         </title>
         <h:outputScript library="primefaces" name="jquery/jquery.js" />
         <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css" />
+        <h:outputStylesheet library="css" name="css-utils.css" />        
+        <h:outputScript library="js" name="js-utils.js" />
     </h:head>
     <h:body>
-        <pe:layout  id="body">
+        <pe:layout id="body">
             <pe:layoutPane position="center">
-                <pe:layoutPane position="center">
-                    <h:form id="mainForm" style="overflow: hidden">
+                <h:form id="mainForm" style="overflow: hidden">
+                    <ui:insert name="menubar" />
+                    <pe:layoutPane position="center">
                         <p:growl globalOnly="true" id="msg" showDetail="true" skipDetailIfEqualsSummary="true"/>
                         <ui:insert name="content_header" />
-                        <p:panel>
-                            <ui:insert name="body" />
-                        </p:panel>
-                    </h:form>
-                </pe:layoutPane>
+                        <p:separator />
+                        <ui:insert name="body" />
+                    </pe:layoutPane>
+                     <ui:insert name="Func" />
+                </h:form>
             </pe:layoutPane>
         </pe:layout>
-        <p:blockUI block="body">
+        <p:blockUI block="body" widgetVar="bui">
             <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
         </p:blockUI>
     </h:body>

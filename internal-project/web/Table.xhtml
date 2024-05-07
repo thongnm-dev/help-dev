@@ -19,26 +19,18 @@
         </ui:define>
 
         <ui:define name="container">
-            <p:fieldset legend="#{bundle.FstSearch}" toggleable="true">
-                <p:defaultCommand target="btnSearch" />
-                <p:focus for="txtPhysical" />
+            <p:panel header="#{bundle.FstSearch}" toggleable="true">
                 <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
-                    <p:outputLabel value="From" style="padding: 5px"/>
+                    <p:outputLabel value="Load from: " style="padding: 5px"/>
                     <p:selectOneRadio value="#{tableController.target}">
                         <f:selectItem itemValue="0" itemLabel="Layout" />
                         <f:selectItem itemValue="1" itemLabel="DDL" />
+                        <p:ajax event="change" listener="#{tableController.search()}" update="pnlDataTable msg" />
                     </p:selectOneRadio>
-                    <p:outputLabel value="Physical" style="padding: 5px"/>
-                    <p:inputText id="txtPhysical" value="#{tableController.physical}"></p:inputText>
-                    <p:outputLabel value="Logical" style="padding: 5px"/>
-                    <p:inputText id="txtLogical" value="#{tableController.logical}"></p:inputText>
                 </h:panelGrid>
-                <p:commandButton id="btnSearch" icon="#{bundle.ViewIcon}" value="#{bundle.SearchLabel}"  onclick="showBlockUI()" actionListener="#{tableController.search()}">
-                    <!--<p:ajax listener="#{tableController.search()}" update="msg tblData" oncomplete="hideBlockUI();" />-->
-                </p:commandButton>
-            </p:fieldset>
+            </p:panel>
             <p:spacer height="2" />
-            <p:fieldset legend="#{bundle.FstList}">
+            <p:panel id="pnlDataTable">
                 <p:dataTable var="item" value="#{tableController.items}" id="tblData" rowIndexVar="idx"
                              paginator="true" lazy="true" widgetVar="dataTableList" 
                              paginatorPosition="top"
@@ -50,6 +42,12 @@
                              currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}"
                              >
                     <p:ajax event="page" />
+                     <f:facet name="header">
+                        <div class="flex justify-content-end">
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTableList').filter()" style="width:300px"
+                                         placeholder="Search all fields using global function" />
+                        </div>
+                    </f:facet>
                     <p:columnGroup type="header">
                         <p:row>
                             <p:column headerText="No" style="width: 40px;"/>
@@ -71,17 +69,17 @@
                             <p:menuitem value="Delete" icon="#{bundle.FunctionIcon}" />
                         </p:menuButton>
                     </p:column>
-                    <p:column style="text-align: center">
+                    <p:column style="text-align: center" filterBy="#{item.physical}">
                         <p:commandLink value="#{item.physical}"/>
                     </p:column>
-                    <p:column>
+                    <p:column filterBy="#{item.logical}">
                         <p:outputLabel value="#{item.logical}" />
                     </p:column>
                     <p:column>
                         <p:outputLabel value="#{item.logicalVn}" />
                     </p:column>
                 </p:dataTable>
-            </p:fieldset>
+            </p:panel>
         </ui:define>
 
         <ui:define name="Func">

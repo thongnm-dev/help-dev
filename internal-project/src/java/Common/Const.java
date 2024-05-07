@@ -33,4 +33,9 @@ public class Const {
 
         }
     };
+
+    public static final String TABLE_FROM_LAYOUT = "0";
+
+    public static final String TABLE_FROM_DDL = "1";
+
 }

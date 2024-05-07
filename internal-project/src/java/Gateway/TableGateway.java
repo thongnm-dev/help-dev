@@ -2,57 +2,44 @@ package Gateway;
 
 import Common.BaseGateway;
 import java.util.Collection;
-import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 import Model.TableIF;
+import javax.persistence.EntityManager;
 
 @Stateless
 public class TableGateway extends BaseGateway<TableIF> {
 
-    public Collection<TableIF> GetAll(Long project) {
+    public Collection<TableIF> GetTables(Long project) {
 
-        Query query = getEntityManager().createNamedQuery("GET_ALL_TABLE");
+        Query wQuery = getEntityManager().createNamedQuery("GET_ALL_TABLE");
 
-        query.setParameter("project", project);
+        wQuery.setParameter("project", project);
 
-        return query.getResultList();
+        return wQuery.getResultList();
     }
 
-    public Collection<TableIF> GetTables(Map<String, Object> params) {
-        StringBuilder wSqlQuery = new StringBuilder();
+    public Collection<TableIF> GetTables(EntityManager manager, String nspname) {
 
-        wSqlQuery.append(" SELECT ");
-        wSqlQuery.append(" t.* ");
-        wSqlQuery.append(" FROM ");
-        wSqlQuery.append("     t_table T ");
-        wSqlQuery.append(" WHERE 1 = 1 ");
+        StringBuilder wSqlstr = new StringBuilder();
+        wSqlstr.append(" SELECT ");
+        wSqlstr.append("     C.relname AS physical ");
+        wSqlstr.append("   , pg_catalog.obj_description(C.oid, 'pg_class') AS logical ");
+        wSqlstr.append("   , '' AS logical_v ");
+        wSqlstr.append(" From ");
+        wSqlstr.append("   pg_class C ");
+        wSqlstr.append("   LEFT JOIN pg_namespace N ");
+        wSqlstr.append("     ON N.oid = C.relnamespace ");
+        wSqlstr.append(" WHERE ");
+        wSqlstr.append("   N.nspname = ?nspname ");
+        wSqlstr.append("   AND C.relkind = 'r' ");
+        wSqlstr.append(" ORDER BY ");
+        wSqlstr.append("   C.relname ASC ");
 
-        wSqlQuery.append(" AND t.project_id = ?project_id");
+        Query wQuery = manager.createNativeQuery(wSqlstr.toString(), TableIF.class);
 
-        if (params.containsKey("physical")) {
-            wSqlQuery.append(" AND regexp_replace(t.physical, '[　\\s]', '', 'g') = regexp_replace(?physical, '[　\\s]', '', 'g')");
-        }
+        wQuery.setParameter("nspname", nspname);
 
-        if (params.containsKey("logical")) {
-            wSqlQuery.append(" AND ( ");
-            wSqlQuery.append("          regexp_replace(t.logical, '[　\\s]', '', 'g') = regexp_replace(?logical, '[　\\s]', '', 'g')");
-            wSqlQuery.append("       OR regexp_replace(t.logical_v, '[　\\s]', '', 'g') = regexp_replace(?logical, '[　\\s]', '', 'g')");
-            wSqlQuery.append(" ) ");
-        }
-
-        Query query = getEntityManager().createNativeQuery(wSqlQuery.toString(), TableIF.class);
-
-        query.setParameter("project_id", params.get("project"));
-
-        if (params.containsKey("physical")) {
-            query.setParameter("physical", params.get("physical"));
-        }
-
-        if (params.containsKey("logical")) {
-            query.setParameter("logical", params.get("logical"));
-        }
-
-        return query.getResultList();
+        return wQuery.getResultList();
     }
 }

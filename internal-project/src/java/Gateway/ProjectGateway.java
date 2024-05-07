@@ -7,6 +7,10 @@ import java.util.Date;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 import Model.ProjectIF;
+import Model.ProjectIF_;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 @Stateless
 public class ProjectGateway extends BaseGateway<ProjectIF> {
@@ -19,6 +23,16 @@ public class ProjectGateway extends BaseGateway<ProjectIF> {
 //        query.setParameter("fromdate", fromDate);
 
         return query.getResultList();
+    }
+
+    public  ProjectIF GetById(Long id) {
+        CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<ProjectIF> criteriaQuery = criteriaBuilder.createQuery(ProjectIF.class);
+        Root<ProjectIF> userRoot = criteriaQuery.from(ProjectIF.class);
+
+        return getEntityManager().createQuery(criteriaQuery.select(userRoot)
+                  .where(criteriaBuilder.equal(userRoot.get(ProjectIF_.id), id)))
+                 .getSingleResult();
     }
 
 //    CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();

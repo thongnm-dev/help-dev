@@ -42,7 +42,7 @@ public class SqlToolBeltController extends BaseController {
     @Getter
     @Setter
     private String javaCodeStr;
-    
+
     @Getter
     @Setter
     private boolean onlyStringBuilder;

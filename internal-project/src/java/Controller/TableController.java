@@ -4,7 +4,6 @@ import Common.BaseController;
 import Common.Const;
 import Common.MessageUtils;
 import Gateway.TableGateway;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,6 +14,10 @@ import javax.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import Model.TableIF;
+import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
@@ -27,18 +30,10 @@ public class TableController extends BaseController {
     private final String SRC_TABLE = "TABLE";
 
     private final String SRC_TABLE_DTL = "TABLE_DTL";
-    
+
     @Getter
     @Setter
     private String target = "0";
-
-    @Getter
-    @Setter
-    private String physical = StringUtils.EMPTY;
-
-    @Getter
-    @Setter
-    private String logical = StringUtils.EMPTY;
 
     private List<TableIF> tables = null;
 
@@ -105,7 +100,8 @@ public class TableController extends BaseController {
 
         try {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_DTL, "pProjectId");
-            tables = tableGateway.GetAll(wProjectId).stream().collect(Collectors.toList());
+
+            tables = tableGateway.GetTables(wProjectId).stream().collect(Collectors.toList());
             return true;
         } catch (Exception ex) {
             return false;
@@ -116,15 +112,31 @@ public class TableController extends BaseController {
 
         try {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_DTL, "pProjectId");
-            Map<String, Object> params = new HashMap<>();
-            params.put("project", wProjectId);
-            if (StringUtils.isNotBlank(physical)) {
-                params.put("physical", physical);
+
+            if (StringUtils.equals(Const.TABLE_FROM_LAYOUT, target)) {
+                tables = tableGateway.GetTables(wProjectId).stream().collect(Collectors.toList());
+            } else {
+
+                final Map<String, String> properties = new HashMap<String, String>() {
+                    {
+                        put("javax.persistence.provider", "org.eclipse.persistence.jpa.PersistenceProvider");
+                        put("javax.persistence.jdbc.driver", "org.postgresql.Driver");
+                        put("javax.persistence.jdbc.url", "jdbc:postgresql://192.168.10.64:5432/ESS");
+                        put("javax.persistence.jdbc.user", "mowner01");
+                        put("javax.persistence.jdbc.password", "mowner01");
+                    }
+                };
+
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("myPersistenceUnit", properties);
+                EntityManager manager = emf.createEntityManager();
+
+                // Retrieve all tables
+                tables = tableGateway.GetTables(manager, "essnewmoela").stream().collect(Collectors.toList());
+
+                manager.close();
+                emf.close();
             }
-            if (StringUtils.isNotBlank(logical)) {
-                params.put("logical", logical);
-            }
-            tables = tableGateway.GetTables(params).stream().collect(Collectors.toList());
+
         } catch (Exception ex) {
             addErrorMsg(MessageUtils.getMessage("E0001"));
         }

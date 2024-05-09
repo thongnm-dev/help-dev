@@ -27,43 +27,8 @@ public class MstCdIF implements Serializable {
     /**
      * Table physical
      */
-    @Column(name = "prm_cd")
-    private String prmCd;
-
-    /**
-     * Comment on table Japanese
-     */
-    @Column(name = "prm_ms")
-    private String PrmMs;
-
-    /**
-     * This is mean of table Vietnamese
-     */
-    @Column(name = "prm_ms_v")
-    private String PrmMsVn;
-    /**
-     * This is mean of table Vietnamese
-     */
-    @Column(name = "prm_value")
-    private String PrmValue;
-
-    /**
-     * This is mean of table Vietnamese
-     */
-    @Column(name = "prm_label")
-    private String PrmLabel;
-
-    /**
-     * This is mean of table Vietnamese
-     */
-    @Column(name = "prm_label_v")
-    private String PrmLabelVn;
-
-    /**
-     * This is mean of table Vietnamese
-     */
-    @Column(name = "prm_order")
-    private Long prmOrder;
+    @Column(name = "prm_json")
+    private String prmInfo;
 
     @OneToOne
     @JoinColumn(name = "project_id")

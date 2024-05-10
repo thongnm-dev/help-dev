@@ -29,10 +29,6 @@ public class BaseGateway<T> {
         return new ArrayList<>();
     }
 
-    protected T find() throws Exception {
-        return entityType.newInstance();
-    }
-
     protected List<T> query(Function<?, Predicate[]> filters, Function<?, Order[]> orders) {
         return new ArrayList<>();
     }

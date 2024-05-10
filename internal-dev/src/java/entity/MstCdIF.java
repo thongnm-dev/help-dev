@@ -27,7 +27,7 @@ public class MstCdIF implements Serializable {
     /**
      * Table physical
      */
-    @Column(name = "prm_json")
+    @Column(name = "prm_json", columnDefinition = "jsonb")
     private String prmInfo;
 
     @OneToOne

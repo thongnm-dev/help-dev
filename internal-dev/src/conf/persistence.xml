@@ -3,11 +3,12 @@
   <persistence-unit name="DevPU" transaction-type="JTA">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <jta-data-source>java:/local</jta-data-source>
-    <exclude-unlisted-classes>false</exclude-unlisted-classes>    
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
     <properties>
       <property name="eclipselink.target-server" value="JBoss"/>
       <property name="eclipselink.jdbc.bind-parameters" value="false"/>
-      <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+      <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
     </properties>
   </persistence-unit>
 </persistence>

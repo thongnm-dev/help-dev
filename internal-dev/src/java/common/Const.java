@@ -25,6 +25,7 @@ public class Const {
             put("SCR_TOOL", "/SourceToolBelt.xhtml");
             put("SQL_TOOL", "/SqlToolBelt.xhtml");
             put("TABLE", "/Table.xhtml");
+            put("MSTCD", "/Mst.xhtml");
             put("TABLE_DTL", "/TableDetail.xhtml");
             put("TASK", "/Task.xhtml");
             put("TASK_DTL", "/TaskDetail.xhtml");

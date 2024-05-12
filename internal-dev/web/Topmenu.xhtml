@@ -68,12 +68,13 @@
             </p:fieldset>
             <p:spacer height="5"/>
             <p:fieldset toggleable="true" legend="Dự án">
-                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}">
-                    <p:ajax listener="#{topMenuController.refresh()}" update="msg tblData" onstart="showBlockUI();" oncomplete="hideBlockUI();"/>
+                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}" update="msg tblData"
+                                 onclick="showBlockUI();" actionListener="#{topMenuController.refresh()}" oncomplete="hideBlockUI();">                    
                 </p:commandButton>
 
                 <p:panel style="margin-top: 10px">
-                    <p:dataTable var="item" value="#{topMenuController.projects}" id="tblData" rowIndexVar="idx" widgetVar="dataTableList" >
+                    <p:dataTable var="item"
+                                 value="#{topMenuController.projects}" id="tblData" rowIndexVar="idx" widgetVar="dataTableList" >
                     <p:ajax event="page" />
                     <p:columnGroup type="header">
                         <p:row>
@@ -101,7 +102,7 @@
                         <p:outputLabel value="#{item.projectCd}" />
                     </p:column>
                     <p:column>
-                        <p:outputLabel value="#{item.projectName}" />
+                        <p:outputLabel value="#{item.projectDescript}" />
                     </p:column>
                 </p:dataTable>
                 </p:panel>

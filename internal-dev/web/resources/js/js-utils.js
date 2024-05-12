@@ -7,7 +7,7 @@ function hideBlockUI() {
 }
 
 function blockUI() {
-    return PrimeFaces.widgets['bui'];
+    return PF('bui');
 }
 
 $(function () {

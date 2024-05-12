@@ -19,22 +19,23 @@
         <h:outputStylesheet library="css" name="css-utils.css" />        
         <h:outputScript library="js" name="js-utils.js" />
     </h:head>
-    <h:body>
-        <pe:layout id="body">
+    <h:body id="body">
+        <pe:layout>
             <pe:layoutPane position="center">
                 <h:form id="mainForm" style="overflow: hidden">
-                    <ui:insert name="menubar" />
-                    <pe:layoutPane position="center">
-                        <p:growl globalOnly="true" id="msg" showDetail="true" skipDetailIfEqualsSummary="true"/>
-                        <ui:insert name="content_header" />
-                        <p:separator />
-                        <ui:insert name="body" />
-                    </pe:layoutPane>
-                     <ui:insert name="Func" />
+                        <ui:insert name="menubar" />
+                        <pe:layoutPane position="center">
+                            <p:growl globalOnly="true" id="msg" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                            <ui:insert name="content_header" />
+                            <p:separator />
+                            <ui:insert name="body" />
+                        </pe:layoutPane>
+                        <ui:insert name="Func" />
                 </h:form>
+                <ui:insert name="secondForm" />
             </pe:layoutPane>
         </pe:layout>
-        <p:blockUI block="body" widgetVar="bui">
+        <p:blockUI block="body" widgetVar="bui" >
             <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
         </p:blockUI>
     </h:body>

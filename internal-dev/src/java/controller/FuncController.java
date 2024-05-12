@@ -3,10 +3,14 @@ package Controller;
 import common.BaseController;
 import common.BaseLazyDataModel;
 import common.Const;
+import common.MessageUtils;
 import java.util.List;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
 import entity.FuncIf;
+import gateway.FuncGateway;
+import jakarta.inject.Inject;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.model.LazyDataModel;
@@ -21,6 +25,8 @@ public class FuncController extends BaseController {
 
     private LazyDataModel<FuncIf> items;
 
+    @Inject
+    private FuncGateway fcGateway;
     @Getter
     @Setter
     private int pageFirstItem = 0;
@@ -43,12 +49,14 @@ public class FuncController extends BaseController {
         return Const.SCR_INFO.get(SRC_ID);
     }
 
-    private boolean initData() {
-
-        return true;
-    }
-
     public void search() {
+        try {
+            Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
 
+            listData = fcGateway.GetFuncs(wProjectId).stream().collect(Collectors.toList());
+
+        } catch (Exception ex) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+        }
     }
 }

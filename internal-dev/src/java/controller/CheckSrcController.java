@@ -10,9 +10,13 @@ import jakarta.inject.Named;
 public class CheckSrcController extends BaseController {
 
     private final String SRC_ID = "SCR_CHK";
-
+    
+    private String aaa = "";
+    
     public String init() throws Exception {
 
         return Const.SCR_INFO.get(SRC_ID);
     }
+    
+    
 }

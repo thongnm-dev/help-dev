@@ -8,7 +8,7 @@
       xmlns:p="http://primefaces.org/ui">
 
     <f:metadata>
-        <f:viewAction action="#{tableController.initTable()}" />
+        <f:viewAction action="#{tableController.init()}" />
     </f:metadata>
 
     <ui:composition template="/templates/window_base.xhtml">
@@ -41,16 +41,15 @@
                              rows="#{tableController.rowsPerPage}"
                              rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"
                              paginatorTemplate="#{bundle.PaginatorTemplate}" 
-                             currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}"
-                             >
+                             currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}">
                     <p:ajax event="page" />
                     <p:columnGroup type="header">
                         <p:row>
                             <p:column headerText="No" style="width: 40px;"/>
                             <p:column headerText="Chức năng" style="width: 200px;"/>
-                            <p:column headerText="Physical name" style="width: 250px;" filterBy="#{item.physical}" filterMatchMode="contains"/>
-                            <p:column headerText="Logical JP" filterBy="#{item.logical}" filterMatchMode="contains"/>
-                            <p:column headerText="Logical VN" />
+                            <p:column headerText="Physical" style="width: 250px;" filterBy="#{item.physical}" filterMatchMode="contains"/>
+                            <p:column headerText="Logical" filterBy="#{item.logical}" filterMatchMode="contains"/>
+                            <p:column headerText="Logical(VN)" />
                         </p:row>
                     </p:columnGroup>
                     <p:column style="text-align: center">
@@ -66,7 +65,7 @@
                         </p:menuButton>
                     </p:column>
                     <p:column>
-                        <p:commandLink value="#{item.physical}" action="#{tableController.showDetail(item)}"/>
+                        <p:commandLink value="#{item.physical}" action="#{tableController.showDetail(item)}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
                     </p:column>
                     <p:column>
                         <p:outputLabel value="#{item.logical}" />

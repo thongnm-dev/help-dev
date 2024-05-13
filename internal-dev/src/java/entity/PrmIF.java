@@ -12,13 +12,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Table(name = "t_common_param",
+@Table(name = "t_prm",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"prm_id", "prm_cd"}) })
 @Entity
 @Getter
 @Setter
 @ToString
-public class CommonParamIF implements Serializable {
+public class PrmIF implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

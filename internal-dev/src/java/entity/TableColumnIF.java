@@ -19,7 +19,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TableDetailIF implements Serializable {
+public class TableColumnIF implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,7 @@ public class TableDetailIF implements Serializable {
      *
      */
     private String physical;
+    
 
     /**
      *

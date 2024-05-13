@@ -12,7 +12,7 @@
 
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="body">
-            <p:fieldset toggleable="true" legend="Thông tin chung">
+            <p:panel header="Thông tin chung" toggleable="true">
                 <h:panelGrid  style="text-align: center" >
                     <p:row>
                         <p:column>
@@ -26,9 +26,9 @@
                         </p:column>
                     </p:row>
                 </h:panelGrid>
-            </p:fieldset>
+            </p:panel>
             <p:spacer height="5"/>
-            <p:fieldset toggleable="true" legend="Công cụ hỗ trợ">
+            <p:panel header="Công cụ hỗ trợ" toggleable="true">
                 <h:panelGrid columns="3" style="margin-bottom: 5px">
                     <p:row>
                         <p:column>
@@ -65,9 +65,9 @@
                         </p:row>
                     </h:panelGrid>
                 </p:panel>
-            </p:fieldset>
+            </p:panel>
             <p:spacer height="5"/>
-            <p:fieldset toggleable="true" legend="Dự án">
+            <p:panel header="Dự án" toggleable="true">
                 <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}" update="msg tblData"
                                  onclick="showBlockUI();" actionListener="#{topMenuController.refresh()}" oncomplete="hideBlockUI();">                    
                 </p:commandButton>
@@ -92,8 +92,7 @@
                             <p:menuitem value="Tài liệu hướng dẫn" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'NOTE')}"/>
                             <p:menuitem value="Qui ước chung" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'NOTE')}"/>
                             <p:menuitem value="Table Layout" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'TABLE')}"/>
-                            <p:menuitem value="Master Code đa năng" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'FUNC')}"/>
-                            <p:menuitem value="Quản lý Message ID" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'MSG')}"/>
+                            <p:menuitem value="Quản lý master" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'MST')}"/>
                             <p:menuitem value="Chức năng đã coding" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'FUNC')}"/>
                             <p:menuitem value="Sinh dữ liệu động" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'DBTOOLS')}"/>
                         </p:menuButton>
@@ -106,7 +105,7 @@
                     </p:column>
                 </p:dataTable>
                 </p:panel>
-            </p:fieldset>
+            </p:panel>
         </ui:define>
     </ui:composition>
 </html>

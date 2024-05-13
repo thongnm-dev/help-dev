@@ -3,7 +3,7 @@ package gateway;
 
 import common.BaseGateway;
 import entity.FuncIf;
-import entity.FuncIf_;
+import entity.manage.FuncIf_;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

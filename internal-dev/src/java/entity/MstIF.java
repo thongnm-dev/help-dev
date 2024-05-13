@@ -18,12 +18,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class MstCdIF implements Serializable {
+public class MstIF implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JoinColumn(name = "mst_kbn")
+    private String mstKbn;
     /**
      * Table physical
      */

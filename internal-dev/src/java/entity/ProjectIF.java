@@ -77,7 +77,7 @@ public class ProjectIF implements Serializable {
     private Set<NoteIF> notes;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
-    private Set<MstCdIF> mstCds;
+    private Set<MstIF> mstCds;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
     private DbConection dbConnection;

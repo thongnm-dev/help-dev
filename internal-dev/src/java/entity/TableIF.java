@@ -49,6 +49,6 @@ public class TableIF implements Serializable {
     private ProjectIF project;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "table")
-    private Set<TableDetailIF> tableDtls;
+    private Set<TableColumnIF> tableDtls;
 
 }

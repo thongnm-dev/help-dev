@@ -42,6 +42,8 @@ public class TopMenuController extends BaseController {
 
         setScrIFToSession(url, "pProjectId", project.getId());
 
+        setBackScreenIdToSession(url, "/Topmenu.xhtml");
+        
         return redirect(wScrUrl);
     }
 

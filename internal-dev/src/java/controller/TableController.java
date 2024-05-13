@@ -1,6 +1,7 @@
 package Controller;
 
 import common.BaseController;
+import common.BaseLazyDataModel;
 import common.Const;
 import common.MessageUtils;
 import gateway.TableGateway;
@@ -12,27 +13,18 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import entity.TableIF;
-import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.DataModel;
 import java.util.HashMap;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import model.TableModel;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.persistence.config.EntityManagerProperties;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.primefaces.model.LazyDataModel;
-import org.primefaces.model.SortMeta;
-import org.primefaces.model.FilterMeta;
-import org.primefaces.model.filter.FilterConstraint;
-import org.primefaces.util.LocaleUtils;
 
 @Named
 @SessionScoped
@@ -40,7 +32,7 @@ public class TableController extends BaseController {
 
     private final String SRC_TABLE = "TABLE";
 
-    private final String SRC_TABLE_DTL = "TABLE_DTL";
+    private final String SRC_TABLE_COL = "TABLE_COL";
 
     @Getter
     @Setter
@@ -66,52 +58,10 @@ public class TableController extends BaseController {
     private boolean canSearch = false;
 
     public DataModel<TableModel> getItems() {
-        return !canSearch ? items : items == null ? items = new LazyDataModel<TableModel>() {
-            @Override
-            public int count(Map<String, FilterMeta> filterBy) {
-                return (int) tables.stream().filter(row -> filter(ctx().facesContext(), filterBy.values() ,row)).count();
-            }
-
-            @Override
-            public List<TableModel> load(int pFirst, int pPageSize, Map<String, SortMeta> sort, Map<String, FilterMeta> filter) {
-                List<TableModel> wResultList = tables.stream()
-                        .skip(pFirst)
-                        .filter(row -> filter(ctx().facesContext(), filter.values() ,row))
-                        .limit(pPageSize)
-                        .collect(Collectors.toList());
-
-                return wResultList;
-            }
-
-            private boolean filter(FacesContext context, Collection<FilterMeta> filterBy, TableModel model) {
-                boolean matching = true;
-
-                for (FilterMeta filter : filterBy) {
-                    FilterConstraint constraint = filter.getConstraint();
-                    Object filterValue = filter.getFilterValue();
-
-                    try {
-
-                        Field field = model.getClass().getDeclaredField(filter.getField());
-                        field.setAccessible(true);
-                        
-                        matching = constraint.isMatching(context, field.get(model), filterValue, LocaleUtils.getCurrentLocale());
-                    } catch (Exception e) {
-                        matching = false;
-                    }
-
-                    if (!matching) {
-                        break;
-                    }
-                }
-
-                return matching;
-
-            }
-        } : items;
+        return !canSearch ? items : items == null ? items = new BaseLazyDataModel(tables) : items;
     }
 
-    public String initTable() throws Exception {
+    public String init() throws Exception {
 
         tables = new ArrayList<>();
         target = "0";
@@ -123,20 +73,10 @@ public class TableController extends BaseController {
         return Const.SCR_INFO.get(SRC_TABLE);
     }
 
-    public String initTableDtl() throws Exception {
-
-        if (!initData()) {
-            addErrorMsg(MessageUtils.getMessage("E0001"));
-            return redirect(getBackScr(SRC_TABLE_DTL));
-        }
-
-        return Const.SCR_INFO.get(SRC_TABLE_DTL);
-    }
-
     private boolean initData() throws Exception {
 
         try {
-            Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_DTL, "pProjectId");
+            Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
 
             tables = new ArrayList<>();
             ModelMapper modelMapper = new ModelMapper();
@@ -162,10 +102,13 @@ public class TableController extends BaseController {
         }
     }
 
+    /**
+     * Retrieve data from db
+     */
     public void search() {
 
         try {
-            Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_DTL, "pProjectId");
+            Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
             tables = new ArrayList<>();
             if (StringUtils.equals(Const.TABLE_FROM_LAYOUT, target)) {
                 ModelMapper modelMapper = new ModelMapper();
@@ -188,18 +131,18 @@ public class TableController extends BaseController {
 
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
-                        put(EntityManagerProperties.JDBC_USER, "beuser");
-                        put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
+                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://192.168.10.64:5432/ESS");
+                        put(EntityManagerProperties.JDBC_USER, "mowner01");
+                        put(EntityManagerProperties.JDBC_PASSWORD, "mowner01");
                         put("eclipselink.jdbc.bind-parameters", "false");
                     }
                 };
 
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties);
-                EntityManager manager = emf.createEntityManager(properties);
+                EntityManager manager = emf.createEntityManager();
 
                 // Retrieve all tables
-                tableGateway.GetTables(manager, "public").stream()
+                tableGateway.GetTables(manager, "essnewmoela").stream()
                         .forEach(wRow -> {
                             TableModel model = new TableModel();
                             try {
@@ -231,6 +174,14 @@ public class TableController extends BaseController {
 
     public String showDetail(TableModel table) {
 
-        return redirect(Const.SCR_INFO.get("TABLE_DTL"));
+        setScrIFToSession(SRC_TABLE_COL, "pProjectId", table.getProjectId());
+        setScrIFToSession(SRC_TABLE_COL, "pTarget", target);
+        setScrIFToSession(SRC_TABLE_COL, "pTableId", table.getId());
+        setScrIFToSession(SRC_TABLE_COL, "pTblPhysical", table.getPhysical());
+        setScrIFToSession(SRC_TABLE_COL, "pTblLogical", table.getLogical());
+
+        setBackScreenIdToSession(SRC_TABLE_COL, Const.SCR_INFO.get(SRC_TABLE));
+        
+        return redirect(Const.SCR_INFO.get(SRC_TABLE_COL));
     }
 }

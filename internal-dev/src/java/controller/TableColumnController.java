@@ -26,9 +26,9 @@ import org.eclipse.persistence.config.EntityManagerProperties;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 
-@Named
+@Named("tableColumnController")
 @SessionScoped
-public class TblColumnController extends BaseController {
+public class TableColumnController extends BaseController {
     
     private final String SRC_ID = "TABLE_COL";
     

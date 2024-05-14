@@ -7,26 +7,26 @@
       xmlns:pe="http://primefaces.org/ui/extensions"
       xmlns:p="http://primefaces.org/ui">
     <f:metadata>
-        <f:viewAction action="#{tblColumnController.init()}" />
+        <f:viewAction action="#{tableColumnController.init()}" />
     </f:metadata>
     
     <ui:composition template="/templates/window_base.xhtml">
         
         <ui:define name="content_title">
             <p:panel class="content_title" id="content_title">
-                <h:outputLabel>Definition of table「#{tblColumnController.tableLogical}」 </h:outputLabel>
+                <h:outputLabel>Definition of table「#{tableColumnController.tableLogical}」 </h:outputLabel>
             </p:panel>
         </ui:define>
         
         <ui:define name="container">
             <p:panel id="pnlDataTable">
-                <p:dataTable var="item" value="#{tblColumnController.items}" id="tblData" rowIndexVar="idx"
+                <p:dataTable var="item" value="#{tableColumnController.items}" id="tblData" rowIndexVar="idx"
                              paginator="true" lazy="true" widgetVar="dataTableList" 
                              paginatorPosition="top"
                              scrollHeight="470"
                              scrollable="true"
-                             first="#{tblColumnController.pageFirstItem}"
-                             rows="#{tblColumnController.rowsPerPage}"
+                             first="#{tableColumnController.pageFirstItem}"
+                             rows="#{tableColumnController.rowsPerPage}"
                              rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"
                              paginatorTemplate="#{bundle.PaginatorTemplate}" 
                              currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}">

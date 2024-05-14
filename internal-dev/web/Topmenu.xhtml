@@ -12,7 +12,7 @@
 
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="body">
-            <p:panel header="Thông tin chung" toggleable="true">
+            <p:panel header="Thông tin chung" toggleable="true" rendered="false">
                 <h:panelGrid  style="text-align: center" >
                     <p:row>
                         <p:column>
@@ -28,7 +28,7 @@
                 </h:panelGrid>
             </p:panel>
             <p:spacer height="5"/>
-            <p:panel header="Công cụ hỗ trợ" toggleable="true">
+            <p:panel header="Công cụ hỗ trợ" toggleable="true" rendered="false">
                 <h:panelGrid columns="3" style="margin-bottom: 5px">
                     <p:row>
                         <p:column>
@@ -42,7 +42,7 @@
                         </p:column>
                     </p:row>
                 </h:panelGrid>
-                <p:panel header="Phát triển" toggleable="true">
+                <p:panel header="Phát triển" toggleable="true" rendered="false">
                     <h:panelGrid columns="3" >
                         <p:row>
                             <p:column >
@@ -89,11 +89,8 @@
                     </p:column>
                     <p:column style="text-align: center">
                         <p:menuButton id="btnFunc" value="Chọn chức năng">
-                            <p:menuitem value="Tài liệu hướng dẫn" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'NOTE')}"/>
-                            <p:menuitem value="Qui ước chung" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'NOTE')}"/>
                             <p:menuitem value="Table Layout" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'TABLE')}"/>
                             <p:menuitem value="Quản lý master" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'MST')}"/>
-                            <p:menuitem value="Chức năng đã coding" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'FUNC')}"/>
                             <p:menuitem value="Sinh dữ liệu động" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'DBTOOLS')}"/>
                         </p:menuButton>
                     </p:column>

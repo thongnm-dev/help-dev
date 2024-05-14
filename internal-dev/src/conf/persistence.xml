@@ -10,7 +10,6 @@
       <property name="eclipselink.target-server" value="JBoss"/>
       <property name="eclipselink.jdbc.bind-parameters" value="false"/>
       <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
-      <property name="eclipselink.canonicalmodel.subpackage" value="manage"/>
     </properties>
   </persistence-unit>
   <persistence-unit name="persistenceUnit" transaction-type="RESOURCE_LOCAL">

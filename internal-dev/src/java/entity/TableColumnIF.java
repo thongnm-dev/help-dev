@@ -3,12 +3,9 @@ package entity;
 import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +27,6 @@ public class TableColumnIF implements Serializable {
      */
     private String physical;
     
-
     /**
      *
      */
@@ -65,7 +61,12 @@ public class TableColumnIF implements Serializable {
     @Column(name = "logical_v")
     private String logicalVn;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "table_id")
-    private TableIF table;
+    /**
+     * 
+     */
+    @Column(name = "table_name")
+    private String tableName;
+    
+    @Column(name = "project_id")
+    private Long projectId;
 }

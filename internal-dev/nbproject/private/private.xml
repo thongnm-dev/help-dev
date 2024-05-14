@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/src/java/controller/TblColumnController.java</file>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/web/TableColumn.xhtml</file>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/src/java/gateway/TableGateway.java</file>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/src/java/controller/SqlToolBeltController.java</file>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/web/Table.xhtml</file>
-            <file>file:/E:/Works/MyProjects/help-dev/internal-dev/src/java/controller/TableController.java</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/web/Topmenu.xhtml</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/web/Table.xhtml</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/src/java/controller/MstController.java</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/web/TableColumn.xhtml</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/src/java/controller/TableController.java</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/src/java/controller/TableColumnController.java</file>
+            <file>file:/E:/Works/MyProjects/CrazyTools/help-dev/internal-dev/web/Mst.xhtml</file>
         </group>
     </open-files>
 </project-private>

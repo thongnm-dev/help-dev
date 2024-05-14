@@ -6,40 +6,41 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:pe="http://primefaces.org/ui/extensions"
       xmlns:p="http://primefaces.org/ui">
+
     <f:metadata>
-        <f:viewAction action="#{tableColumnController.init()}" />
+        <f:viewAction action="#{tableController.initColumn()}" />
     </f:metadata>
     
     <ui:composition template="/templates/window_base.xhtml">
         
         <ui:define name="content_title">
             <p:panel class="content_title" id="content_title">
-                <h:outputLabel>Definition of table「#{tableColumnController.tableLogical}」 </h:outputLabel>
+                Definition of table【<h:outputLabel style="font-size: 20px; color: red; font-weight: bold" value="#{tableController.tableName}" />
+                                     <h:outputLabel value="#{tableController.tableLogical}" />】 
             </p:panel>
         </ui:define>
         
         <ui:define name="container">
             <p:panel id="pnlDataTable">
-                <p:dataTable var="item" value="#{tableColumnController.items}" id="tblData" rowIndexVar="idx"
+                <p:dataTable var="item" value="#{tableController.columnItems}" id="tblData" rowIndexVar="idx"
                              paginator="true" lazy="true" widgetVar="dataTableList" 
                              paginatorPosition="top"
-                             scrollHeight="470"
+                             scrollHeight="560"
                              scrollable="true"
-                             first="#{tableColumnController.pageFirstItem}"
-                             rows="#{tableColumnController.rowsPerPage}"
+                             first="#{tableController.pageFirstItem}"
+                             rows="#{tableController.rowsPerPage}"
                              rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"
                              paginatorTemplate="#{bundle.PaginatorTemplate}" 
                              currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}">
-                    <p:ajax event="page" />
+                    <p:ajax event="page" listener="#{tableController.setCanSearch(true)}" onstart="showBlockUI();" oncomplete="hideBlockUI();"/>
                     <p:columnGroup type="header">
                         <p:row>
                             <p:column headerText="No" style="width: 40px;"/>
                             <p:column headerText="Physical" style="width: 200px;" filterBy="#{item.physical}" filterMatchMode="contains"/>
-                            <p:column headerText="Logical" style="width: 200px;" filterBy="#{item.logical}" filterMatchMode="contains"/>
-                            <p:column headerText="Data type" style="width: 200px;"/>
-                            <p:column headerText="Length" style="width: 200px;"/>
-                            <p:column headerText="Primary" style="width: 200px;"/>
-                            <p:column headerText="Nullable" style="width: 200px;"/>
+                            <p:column headerText="Logical" style="width: 300px;" filterBy="#{item.logical}" filterMatchMode="contains"/>
+                            <p:column headerText="Primary" style="width: 60px;"/>
+                            <p:column headerText="Nullable" style="width: 60px;"/>
+                            <p:column headerText="Data type" style="width: 150px;"/>
                         </p:row>
                     </p:columnGroup>
                     <p:column style="text-align: center">
@@ -51,17 +52,14 @@
                     <p:column>
                         <p:outputLabel value="#{item.logical}" />
                     </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.pk}" disabled="true"/>
+                    </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
+                    </p:column>
                     <p:column>
                         <p:outputLabel value="#{item.data_type}" />
-                    </p:column>
-                    <p:column>
-                        <p:outputLabel value="#{item.max_length}" />
-                    </p:column>
-                    <p:column>
-                        <p:selectBooleanCheckbox value="#{item.is_pk}" />
-                    </p:column>
-                    <p:column>
-                        <p:selectBooleanCheckbox value="#{item.nullable}" />
                     </p:column>
                 </p:dataTable>
             </p:panel>
@@ -70,7 +68,7 @@
         <ui:define name="Func">
             <pe:layoutPane position="south" closable="false" resizable="false">
                 <h:panelGrid style="padding: 0 10px 0 10px">
-                    <p:commandButton value="#{bundle.BackLabel}" />
+                    <p:commandButton value="#{bundle.BackLabel}" action="#{tableController.back()}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
                 </h:panelGrid>
             </pe:layoutPane>
         </ui:define>

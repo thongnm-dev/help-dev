@@ -2,7 +2,7 @@ package gateway;
 
 import common.BaseGateway;
 import entity.TableColumnIF;
-import entity.manage.TableColumnIF_;
+import entity.TableColumnIF_;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -17,15 +17,15 @@ import org.eclipse.persistence.config.ResultType;
 @Stateless
 public class TableColumnGateway extends BaseGateway<TableColumnIF> {
 
-    public Collection<TableColumnIF> GetTableColumns(Long projectId, Long tableId) {
+    public Collection<TableColumnIF> GetTableColumns(Long projectId, String tableName) {
         CriteriaBuilder criteriaBuilder = getCriteriaBuilder();
 
         CriteriaQuery<TableColumnIF> criteriaQuery = criteriaBuilder.createQuery(TableColumnIF.class);
         Root<TableColumnIF> userRoot = criteriaQuery.from(TableColumnIF.class);
 
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.id), projectId));
+        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.projectId), projectId));
 
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.table), tableId));
+        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.tableName), tableName));
 
         return Query(criteriaQuery).getResultList();
     }
@@ -49,9 +49,13 @@ public class TableColumnGateway extends BaseGateway<TableColumnIF> {
         wSqlstr.append(" SELECT ");
         wSqlstr.append("          c.ordinal_position AS id ");
         wSqlstr.append("        , c.column_name AS physical ");
-        wSqlstr.append("        , c.data_type ");
-        wSqlstr.append("        , c.character_maximum_length AS max_length ");
-        wSqlstr.append("        , (CASE WHEN kcu.column_name IS NOT NULL THEN true ELSE false END)::boolean AS is_pk ");
+        wSqlstr.append("        , (CASE WHEN c.data_type = 'character varying' ");
+        wSqlstr.append("                    THEN c.data_type || '(' || c.character_maximum_length || ')' ");
+        wSqlstr.append("                WHEN c.data_type = 'numeric' ");
+        wSqlstr.append("                    THEN c.data_type ");
+        wSqlstr.append("                ELSE c.data_type ");
+        wSqlstr.append("           END)::character varying AS data_type ");
+        wSqlstr.append("        , (CASE WHEN kcu.column_name IS NOT NULL THEN true ELSE false END)::boolean AS pk ");
         wSqlstr.append("        , (CASE WHEN c.is_nullable = 'YES' THEN true ELSE false END)::boolean AS nullable ");
         wSqlstr.append("        , d.description as logical ");
         wSqlstr.append("        , cast(nullif(c.numeric_precision, null) as int) numeric_precision ");
@@ -72,7 +76,6 @@ public class TableColumnGateway extends BaseGateway<TableColumnIF> {
         wSqlstr.append(" where 1=1 ");
         wSqlstr.append("    and t.schema_name = ?nspname ");
         wSqlstr.append("    and t.table_name = ?tblname ");
-        wSqlstr.append(" where 1=1 ");
         wSqlstr.append(" order by ");
         wSqlstr.append("     t.schema_name, ");
         wSqlstr.append("     t.table_name, ");

@@ -4,7 +4,6 @@ import common.BaseController;
 import common.Const;
 import common.MessageUtils;
 import gateway.ProjectGateway;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import jakarta.enterprise.context.SessionScoped;
@@ -50,7 +49,7 @@ public class TopMenuController extends BaseController {
     private boolean initData() throws Exception {
 
         try {
-            projects = projectGateway.GetAll(new Date()).stream().collect(Collectors.toList());
+            projects = projectGateway.GetAll().stream().collect(Collectors.toList());
             return true;
         } catch (Exception ex) {
             return false;
@@ -59,7 +58,7 @@ public class TopMenuController extends BaseController {
 
     public void refresh() {
         try {
-            projects = projectGateway.GetAll(new Date()).stream().collect(Collectors.toList());
+            projects = projectGateway.GetAll().stream().collect(Collectors.toList());
         } catch (Exception ex) {
             addErrorMsg(MessageUtils.getMessage("E0001"));
         }

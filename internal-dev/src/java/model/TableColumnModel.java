@@ -14,10 +14,8 @@ public class TableColumnModel {
     private String physical;
     
     private String data_type;
-    
-    private String max_length;
-    
-    private boolean is_pk;
+        
+    private boolean pk;
     
     private boolean nullable;
     

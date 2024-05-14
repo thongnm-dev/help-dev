@@ -20,21 +20,19 @@
 
         <ui:define name="container">
             <p:panel header="#{bundle.FstSearch}" toggleable="true">
-
-                <h:panelGrid columns="2" class="headline_first_rows_left">
-                    <p:outputLabel value="Loại chức năng"/>
-                    <p:selectOneMenu>
-                        <f:selectItem itemValue="1" itemLabel="Chuyển đổi ngày" />
-                        <f:selectItem itemValue="1" itemLabel="Exclusive" />
-                        <f:selectItem itemValue="1" itemLabel="Check nhập" />
-                        <f:selectItem itemValue="1" itemLabel="Lấy dữ liệu combobox" />
-                    </p:selectOneMenu>
-
-                    <p:outputLabel value="Keyword"/>
-                    <p:inputText placeholder="Nhập điều kiện tìm kiếm"></p:inputText>
+                <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
+                    <p:outputLabel value="Load from: " style="padding: 5px"/>
+                    <p:selectOneRadio >
+                        <f:selectItem itemValue="0" itemLabel="File" />
+                        <f:selectItem itemValue="1" itemLabel="Database" />
+                        <p:ajax event="change" listener="#{mstController.search}" 
+                                onstart="showBlockUI();" update="tblData msg" oncomplete="hideBlockUI();" />
+                    </p:selectOneRadio>
+                    <p:outputLabel value="Type: " style="padding: 5px"/>
+                    <p:selectOneRadio >
+                        
+                    </p:selectOneRadio>
                 </h:panelGrid>
-                <p:spacer height="5" />
-                <p:commandButton value="#{bundle.SearchLabel}"  actionListener="#{mstController.search()}" update="msg tblData"/>
             </p:panel>
             <p:spacer height="2" />
             <p:panel>

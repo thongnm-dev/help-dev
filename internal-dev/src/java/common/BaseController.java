@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class BaseController implements Serializable {
 
+    protected static final String C_SESSION_KEY_SCR = "SCR_ID";
+
     protected static final String C_SESSION_KEY_DELIVERYINFO = "keyDeliveryInfo";
 
     protected static final String C_SESSION_KEY_DELIVERY_ITEMS = "forwardItems";

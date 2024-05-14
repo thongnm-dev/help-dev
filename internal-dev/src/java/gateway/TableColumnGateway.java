@@ -2,7 +2,6 @@ package gateway;
 
 import common.BaseGateway;
 import entity.TableColumnIF;
-import entity.TableColumnIF_;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -23,9 +22,9 @@ public class TableColumnGateway extends BaseGateway<TableColumnIF> {
         CriteriaQuery<TableColumnIF> criteriaQuery = criteriaBuilder.createQuery(TableColumnIF.class);
         Root<TableColumnIF> userRoot = criteriaQuery.from(TableColumnIF.class);
 
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.projectId), projectId));
+        criteriaQuery.where(criteriaBuilder.equal(userRoot.get("projectId"), projectId));
 
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableColumnIF_.tableName), tableName));
+        criteriaQuery.where(criteriaBuilder.equal(userRoot.get("tableName"), tableName));
 
         return Query(criteriaQuery).getResultList();
     }

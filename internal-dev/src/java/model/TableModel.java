@@ -15,5 +15,5 @@ public class TableModel {
     
     private String logical_v;
     
-    private Long projectId;
+    private Long project_id;
 }

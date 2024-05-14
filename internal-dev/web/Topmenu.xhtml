@@ -68,8 +68,8 @@
             </p:panel>
             <p:spacer height="5"/>
             <p:panel header="Dự án" toggleable="true">
-                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}" update="msg tblData"
-                                 onclick="showBlockUI();" actionListener="#{topMenuController.refresh()}" oncomplete="hideBlockUI();">                    
+                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}"
+                                 actionListener="#{topMenuController.refresh()}" update="msg tblData">                    
                 </p:commandButton>
 
                 <p:panel style="margin-top: 10px">
@@ -92,6 +92,7 @@
                             <p:menuitem value="Table Layout" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'TABLE')}"/>
                             <p:menuitem value="Quản lý master" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'MST')}"/>
                             <p:menuitem value="Sinh dữ liệu động" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'DBTOOLS')}"/>
+                            <p:menuitem value="Build SQL" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'SQLBUILDER')}"/>
                         </p:menuButton>
                     </p:column>
                     <p:column>

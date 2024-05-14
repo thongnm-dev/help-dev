@@ -5,7 +5,6 @@ import java.util.Collection;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.Query;
 import entity.TableIF;
-import entity.TableIF_;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -26,7 +25,7 @@ public class TableGateway extends BaseGateway<TableIF> {
         Root<TableIF> userRoot = criteriaQuery.from(TableIF.class);
         
         if (Objects.nonNull(projectId)) {
-            criteriaQuery.where(criteriaBuilder.equal(userRoot.get(TableIF_.projectId), projectId));
+            criteriaQuery.where(criteriaBuilder.equal(userRoot.get("projectId"), projectId));
         }
         
         return Query(criteriaQuery).getResultList();        

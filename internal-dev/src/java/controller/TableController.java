@@ -21,6 +21,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import model.TableColumnModel;
 import model.TableModel;
 import org.apache.commons.beanutils.BeanUtils;
@@ -29,7 +30,6 @@ import org.eclipse.persistence.config.EntityManagerProperties;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.modelmapper.config.Configuration;
-import org.modelmapper.convention.MatchingStrategies;
 
 @Named
 @SessionScoped
@@ -136,26 +136,14 @@ public class TableController extends BaseController {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
 
             tables = new ArrayList<>();
+            
             ModelMapper modelMapper = new ModelMapper();
-
-            modelMapper.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PUBLIC);
-            modelMapper.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             TypeMap<TableIF, TableModel> typeMap = modelMapper.createTypeMap(TableIF.class, TableModel.class);
 
-//            typeMap.addMappings(mapper -> {
-//                mapper.map(table -> table.getId(), TableModel::setId);
-//                mapper.map(table -> table.getPhysical(), TableModel::setPhysical);
-//                mapper.map(table -> table.getLogical(), TableModel::setLogical);
-//                mapper.map(table -> table.getLogicalVn(), TableModel::setLogical_v);
-//                mapper.map(table -> table.getProjectId(), TableModel::setProjectId);
-//            });
+            tables = tableGateway.GetTables(wProjectId).stream()
+                    .map(wRow -> typeMap.map(wRow))
+                    .collect(Collectors.toList());
 
-            tableGateway.GetTables(wProjectId).stream()
-                    .forEach(wRow -> {
-
-                        tables.add(typeMap.map(wRow));
-                    });
             return true;
         } catch (Exception ex) {
             return false;
@@ -176,33 +164,25 @@ public class TableController extends BaseController {
 
                 TypeMap<TableIF, TableModel> typeMap = modelMapper.createTypeMap(TableIF.class, TableModel.class);
 
-//                typeMap.addMappings(mapper -> {
-//                    mapper.map(table -> table.getId(), TableModel::setId);
-//                    mapper.map(table -> table.getPhysical(), TableModel::setPhysical);
-//                    mapper.map(table -> table.getLogical(), TableModel::setLogical);
-//                    mapper.map(table -> table.getLogicalVn(), TableModel::setLogical_v);
-//                    mapper.map(table -> table.getProjectId(), TableModel::setProjectId);
-//                });
-
-                tableGateway.GetTables(wProjectId).stream()
-                        .forEach(wRow -> {
-                            tables.add(typeMap.map(wRow));
-                        });
+                tables =  tableGateway.GetTables(wProjectId).stream()
+                        .map(wRow -> typeMap.map(wRow))
+                        .collect(Collectors.toList());
             } else {
 
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://192.168.10.64:5432/ESS");
-                        put(EntityManagerProperties.JDBC_USER, "mowner01");
-                        put(EntityManagerProperties.JDBC_PASSWORD, "mowner01");
+                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
+                        put(EntityManagerProperties.JDBC_USER, "beuser");
+                        put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
                         put("eclipselink.jdbc.bind-parameters", "false");
                     }
                 };
 
-                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
+                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
+                        EntityManager manager = emf.createEntityManager()) {
 
                     // Retrieve all tables
-                    tableGateway.GetTables(manager, "essnewmoela").stream()
+                    tableGateway.GetTables(manager, "public").stream()
                             .forEach(wRow -> {
                                 TableModel model = new TableModel();
                                 try {
@@ -214,7 +194,7 @@ public class TableController extends BaseController {
 
                                     BeanUtils.populate(model, row);
 
-                                    model.setProjectId(wProjectId);
+                                    model.setProject_id(wProjectId);
                                     tables.add(model);
                                 } catch (Exception e) {
                                     System.out.println("Controller.TableController.search()");
@@ -237,7 +217,7 @@ public class TableController extends BaseController {
      */
     public String showDetail(TableModel table) {
 
-        setScrIFToSession(SRC_TABLE_COL, "pProjectId", table.getProjectId());
+        setScrIFToSession(SRC_TABLE_COL, "pProjectId", table.getProject_id());
         setScrIFToSession(SRC_TABLE_COL, "pTarget", target);
         setScrIFToSession(SRC_TABLE_COL, "pTableId", table.getId());
         setScrIFToSession(SRC_TABLE_COL, "pTblPhysical", table.getPhysical());
@@ -265,28 +245,18 @@ public class TableController extends BaseController {
             columns = new ArrayList<>();
             if (StringUtils.equals(Const.TABLE_FROM_LAYOUT, wTarget)) {
                 ModelMapper modelMapper = new ModelMapper();
-                modelMapper.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PUBLIC);
-
                 TypeMap<TableColumnIF, TableColumnModel> typeMap = modelMapper.createTypeMap(TableColumnIF.class, TableColumnModel.class);
 
-//                typeMap.addMappings(mapper -> {
-//                    mapper.map(tableCol -> tableCol.getId(), TableColumnModel::setId);
-//                    mapper.map(tableCol -> tableCol.getPhysical(), TableColumnModel::setPhysical);
-//                    mapper.map(tableCol -> tableCol.getLogical(), TableColumnModel::setLogical);
-//                    mapper.map(tableCol -> tableCol.getLogicalVn(), TableColumnModel::setLogical_v);
-//                });
-
-                tblColumnGateway.GetTableColumns(wProjectId, tableName).stream()
-                        .forEach(wRow -> {
-                            columns.add(typeMap.map(wRow));
-                        });
+                columns = tblColumnGateway.GetTableColumns(wProjectId, tableName).stream()
+                        .map(wRow -> typeMap.map(wRow))
+                        .collect(Collectors.toList());
             } else {
 
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://192.168.10.64:5432/ESS");
-                        put(EntityManagerProperties.JDBC_USER, "mowner01");
-                        put(EntityManagerProperties.JDBC_PASSWORD, "mowner01");
+                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
+                        put(EntityManagerProperties.JDBC_USER, "beuser");
+                        put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
                         put("eclipselink.jdbc.bind-parameters", "false");
                     }
                 };
@@ -295,7 +265,7 @@ public class TableController extends BaseController {
                         EntityManager manager = emf.createEntityManager()) {
 
                     // Retrieve all tables
-                    tblColumnGateway.GetTableColumns(manager, "essnewmoela", wTblPhysical).stream()
+                    tblColumnGateway.GetTableColumns(manager, "public", wTblPhysical).stream()
                             .forEach(wRow -> {
                                 TableColumnModel model = new TableColumnModel();
                                 try {

@@ -2,7 +2,6 @@ package gateway;
 
 import common.BaseGateway;
 import entity.PrmIF;
-import entity.PrmIF_;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -19,9 +18,9 @@ public class PrmGateway extends BaseGateway<PrmIF> {
         CriteriaQuery<PrmIF> criteriaQuery = criteriaBuilder.createQuery(PrmIF.class);
         Root<PrmIF> root = criteriaQuery.from(PrmIF.class);
         
-        criteriaQuery.where(criteriaBuilder.equal(root.get(PrmIF_.prmCd), prmCd));
+        criteriaQuery.where(criteriaBuilder.equal(root.get("prmCd"), prmCd));
         
-        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(PrmIF_.orderBy)));
+        criteriaQuery.orderBy(criteriaBuilder.asc(root.get("orderBy")));
         
         return Query(criteriaQuery).getResultList();
     }

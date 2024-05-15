@@ -26,9 +26,6 @@ public class PrmIF implements Serializable {
     @Column(name = "prm_id")
     private String prmId;
 
-    @Column(name = "prm_name")
-    private String prmName;
-
     @Column(name = "prm_cd")
     private String prmCd;
 

@@ -1,24 +1,28 @@
 package factory;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
  * @author thongnm
  */
-public class NumericFactory {
+public enum NumericFactory {
 
-    public static String range(String min, String max, int pNumericScale) {
+    INSTANCE;
+
+    public String range(String min, String max, Integer pNumericScale) {
 
         double wRandomDecimal = ThreadLocalRandom.current().nextDouble(Double.parseDouble(min), Double.parseDouble(max));
 
-//        return getNumberWithScale(wRandomDecimal, pNumericScale);
-        return "";
+        return numScale(wRandomDecimal, pNumericScale);
     }
 
-    public static String random() {
+    public String random(Map<String, Object> param) {
 //        String wMin;
-//        String wMax = getMaxRangeValue(pColumnInfo);
+//        String wMax = rangeMax(pColumnInfo);
 //
 //        if (pColumnInfo.getData_type().contains("serial")) {
 //            wMin = "1";
@@ -30,7 +34,7 @@ public class NumericFactory {
         return "";
     }
     
-//    public static String rangeMax(DataTableModel pColumnInfo) {
+//    public String rangeMax(DataTableModel pColumnInfo) {
 //
 //        if (pColumnInfo.getNumeric_scale() == 0) {
 //            return StringUtils.repeat("9", pColumnInfo.getMaxLength());
@@ -40,7 +44,7 @@ public class NumericFactory {
 //                StringUtils.repeat("9", pColumnInfo.getNumeric_scale()));
 //    }
 //
-//    public static String rangeMaxVal(DataTableModel pColumnInfo) {
+//    public String rangeMaxVal(DataTableModel pColumnInfo) {
 //        String wMax;
 //        String wMaxRange = getMaxRange(pColumnInfo);
 //        String wDefaultMaxRange = Const.DataTypes.NUMERIC_MAX_VALUES.get(pColumnInfo.getData_type());
@@ -54,7 +58,7 @@ public class NumericFactory {
 //        return wMax;
 //    }
 //
-//    public static String numScale(double pNumber, int pNumericScale) {
-//        return BigDecimal.valueOf(pNumber).setScale(pNumericScale, RoundingMode.HALF_UP).toString();
-//    }
+    private String numScale(double pNumber, int pNumericScale) {
+        return BigDecimal.valueOf(pNumber).setScale(pNumericScale, RoundingMode.HALF_UP).toString();
+    }
 }

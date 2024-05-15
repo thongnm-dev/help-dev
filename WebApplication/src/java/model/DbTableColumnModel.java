@@ -25,6 +25,10 @@ public class DbTableColumnModel {
 
     private String logical;
     
+    private Integer numeric_precision;
+    
+    private Integer numeric_scale;
+    
     private String setting;
     
     private String random;

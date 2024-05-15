@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,11 +32,18 @@ import org.eclipse.persistence.config.EntityManagerProperties;
  */
 public class ImportFile {
 
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> map = null;
+        
+        final Map<String, Object> check = Optional.ofNullable(map).orElse(new HashMap<>());
+        
+        String ss ="" ;
+    }
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-    public static void main(String[] args) throws Exception {
+    public static void main2(String[] args) throws Exception {
         Stream<Path> paths = Files.walk(Paths.get(args[0]));
         final List<String> workSheetIngore = Arrays.asList("変更履歴", "ER図");
 

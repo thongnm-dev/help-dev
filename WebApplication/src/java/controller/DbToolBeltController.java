@@ -104,6 +104,7 @@ public class DbToolBeltController extends BaseController {
             return redirect(getBackScr(SRC_ID));
         }
 
+        getSession().put(C_SESSION_KEY_SCR, SRC_ID);
         return Const.SCR_INFO.get(SRC_ID);
     }
 
@@ -242,6 +243,18 @@ public class DbToolBeltController extends BaseController {
                             params.put("random", model.getRandom());
                             params.put("param", model.getParam());
                             params.put("ref", model.getRef());
+                            
+                            if (model.isNumeric()) {
+                                params.put("numeric", new HashMap<String, Object>() {
+                                    {
+                                       params.put("precision", model.getNumeric_precision()); 
+                                       params.put("scale", model.getNumeric_scale()); 
+                                    }
+                                });
+                                
+                            }
+                            params.put("character", model.isCharacter());
+                            params.put("date", model.isDate());
                             params.put("sequence", model.getIncre());
 
                             wDataGenerated.add(DataFactory.INSTANCE.perform(params));

@@ -2,6 +2,7 @@ package factory;
 
 import common.Const;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -76,37 +77,43 @@ public enum DataFactory {
     }
 
     private String performFixedVal(Map<String, Object> params) {
-//         if (StringUtils.isBlank(pColumnInfo.getCriteriaSet())) {
-//            if (Const.DataTypes.NUMERIC_TYPES.containsKey(pColumnInfo.getData_type())) {
-//                return Const.DEFAULT_NUMERIC;
-//            }
-//            return Const.HALF_SPACE;
-//        }
-//
-//        return pColumnInfo.getCriteriaSet().trim();
+        final String refVal = (String) params.getOrDefault("ref", "");
+        final boolean numeric = (boolean) params.getOrDefault("numeric", false);
+         if (StringUtils.isBlank(refVal)) {
+            if (numeric) {
+                return "0";
+            }
+            return StringUtils.SPACE;
+        }
 
-        return "";
+        return StringUtils.trim(refVal);
     }
 
     private String performRandomVal(Map<String, Object> params) {
         
-//        if (StringUtils.isNotBlank(pColumnInfo.getParameter())) {
-//            List<String> wParams = Arrays.stream(pColumnInfo.getParameter().split(Const.DEFAULT_DELIMITER))
-//                    .map(String::trim)
-//                    .collect(Collectors.toList());
-//            Collections.sort(wParams);
-//
-//            return NumericGenerateFactory.generateRanged(wParams.get(0), wParams.get(1),
-//                    pColumnInfo.getNumeric_scale());
-//        }
-//
-//        if (Const.DataTypes.NUMERIC_TYPES.containsKey(pColumnInfo.getData_type())) {
-//            return NumericGenerateFactory.generateRandomNumeric(pColumnInfo);
-//        } else if (Const.DataTypes.CHARACTER_TYPES.containsKey(pColumnInfo.getData_type())) {
-//            return CharacterGenerateFactory.generateRandomText(pColumnInfo.getRandomValueOpt(),
-//                    pColumnInfo.getCharacter_maximum_length() != 0 ? pColumnInfo.getCharacter_maximum_length()
-//                    : Const.DataTypes.CHARACTER_TYPES.get(pColumnInfo.getData_type()));
-//        }
+        final boolean numeric = params.containsKey("numeric");
+        
+        final boolean character = (boolean) params.getOrDefault("character", false);
+        final String param = (String) params.getOrDefault("param", false);
+
+        if (numeric) {
+            final Map<String, Object> numMap = (Map) params.get("numeric");
+            if (StringUtils.isNotBlank(param)) {
+                List<String> wParams = Arrays.stream(StringUtils.split(param, ","))
+                        .map(String::trim)
+                        .collect(Collectors.toList());
+                Collections.sort(wParams);
+
+                return NumericFactory.INSTANCE.range(wParams.get(0), wParams.get(1), (Integer) numMap.get("scale"));
+            }
+
+            return NumericFactory.INSTANCE.random(params);
+        } else if (character) {
+            final String random = (String) params.getOrDefault("random", "");
+            final String dataType = (String) params.getOrDefault("data_type", "text");
+            
+            return CharacterFactory.INSTANCE.random(random, dataType);
+        }
         return "";
     }
 

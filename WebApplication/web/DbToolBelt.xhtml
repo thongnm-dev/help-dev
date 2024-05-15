@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewAction action="#{dbToolBeltController.init()}" />
+    </f:metadata>
+
+    <ui:composition template="/templates/window_base.xhtml">
+        <ui:define name="content_title">
+            <p:panel class="content_title" id="content_title">
+                <h:outputLabel>Sinh dữ liệu csv</h:outputLabel>
+            </p:panel>
+        </ui:define>
+        <ui:define name="container">
+            <p:panel header="Thông tin" toggleable="true">
+                <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
+                    <p:outputLabel value="Table target" style="padding: 5px"/>
+                    <p:selectOneMenu value="#{dbToolBeltController.tableTarget}" id="cbTarget">
+                        <f:selectItems value="#{dbToolBeltController.tableItems}"/>
+                        <p:ajax event="change" listener="#{dbToolBeltController.load()}" process="@this" update="pnlDataTable btnExec"/>
+                    </p:selectOneMenu>
+                </h:panelGrid>
+            </p:panel>            
+            <p:spacer height="2" />
+            <p:blockUI block="body" trigger="cbTarget btnExec" widgetVar="buiBasic">
+                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
+            </p:blockUI>
+            <h:panelGroup id="pnlDataTable">
+                <p:panel id="pnltbl" rendered="#{not dbToolBeltController.disable}">
+                    <p:dataTable id="tblData" var="item" value="#{dbToolBeltController.columns}"
+                                     widgetVar="dataTableList"
+                                     scrollHeight="540"
+                                     scrollable="true">
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column headerText="Physical" style="width: 180px;"/>
+                                    <p:column headerText="Key" style="width: 40px;"/>
+                                    <p:column headerText="Nullable" style="width: 60px;"/>
+                                    <p:column headerText="Type" style="width: 280px;"/>
+                                    <p:column headerText="Setting" style="width: 150px;"/>
+                                    <p:column headerText="Random" style="width: 150px;"/>
+                                    <p:column headerText="Param" style="width: 180px;"/>
+                                    <p:column headerText="Reference" style="width: 180px;"/>
+                                    <p:column headerText="Increment" style="width: 180px;"/>
+                                </p:row>
+                            </p:columnGroup>                    
+                            <p:column>
+                                <p:outputLabel value="#{item.physical}" />
+                            </p:column>
+                            <p:column style="text-align: center">
+                                <p:selectBooleanCheckbox value="#{item.pk}" disabled="true"/>
+                            </p:column>
+                            <p:column style="text-align: center">
+                                <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="#{item.data_type}" />
+                            </p:column>
+                            <p:column>
+                                <p:selectOneMenu value="#{item.setting}" style="width: 150px">
+                                    <f:selectItems value="#{dbToolBeltController.settingItems}"/>
+                                    <p:ajax event="change" listener="#{dbToolBeltController.settingOptsChange}"
+                                            process="@this cbRandom txtParam txtRef txtNum"
+                                            update="cbRandom txtParam txtRef txtNum"/>
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column>
+                                <p:selectOneMenu id="cbRandom" value="#{item.random}" style="width: 150px" disabled="#{item.disable_random_otp}">
+                                    <f:selectItems value="#{dbToolBeltController.randomItems}"/>
+                                    <p:ajax event="change" listener="#{dbToolBeltController.randomOptsChange}"
+                                            process="@this txtParam txtRef txtNum"
+                                            update="txtParam txtRef txtNum"/>
+                                </p:selectOneMenu>                        
+                            </p:column>
+                            <p:column>
+                                <p:inputText id="txtParam" value="#{item.param}" disabled="#{item.disable_param}"/>
+                            </p:column>
+                            <p:column>
+                                <p:inputText id="txtRef" value="#{item.ref}" disabled="#{item.disable_ref}"/>
+                            </p:column>
+                            <p:column>
+                                <p:inputNumber id="txtNum" value="#{item.incre}" disabled="#{item.disable_incre}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                </h:panelGroup>
+        </ui:define>
+        <ui:define name="Func">
+            <pe:layoutPane position="south" closable="false" resizable="false">
+                <h:panelGrid columns="2" style="padding: 0 10px 0 10px">
+                    <p:commandButton value="#{bundle.BackLabel}" action="#{dbToolBeltController.back()}"/>
+                    <p:commandButton value="#{bundle.CreateLabel}" action="#{dbToolBeltController.exec()}" id="btnExec" disabled="#{dbToolBeltController.disable}">
+                        <p:confirm header="Confirmation" message="Are you sure you want to proceed?" icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                    
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
+                    </p:confirmDialog>
+                </h:panelGrid>
+            </pe:layoutPane>
+        </ui:define>
+
+    </ui:composition>
+</html>

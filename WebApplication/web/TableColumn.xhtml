@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewAction action="#{tableController.initColumn()}" />
+    </f:metadata>
+    
+    <ui:composition template="/templates/window_base.xhtml">
+        
+        <ui:define name="content_title">
+            <p:panel class="content_title" id="content_title">
+                Definition of table【<h:outputLabel style="font-size: 20px; color: red; font-weight: bold" value="#{tableController.tableName}" />
+                                     <h:outputLabel value="#{tableController.tableLogical}" />】 
+            </p:panel>
+        </ui:define>
+        
+        <ui:define name="container">
+            <p:panel id="pnlDataTable">
+                <p:dataTable var="item" value="#{tableController.columns}" id="tblData" rowIndexVar="idx"
+                             widgetVar="dataTableList" 
+                             scrollHeight="560"
+                             scrollable="true">
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column headerText="No" style="width: 40px;"/>
+                            <p:column headerText="Physical" style="width: 200px;" filterBy="#{item.physical}" filterMatchMode="contains"/>
+                            <p:column headerText="Logical" style="width: 300px;" filterBy="#{item.logical}" filterMatchMode="contains"/>
+                            <p:column headerText="Primary" style="width: 60px;"/>
+                            <p:column headerText="Nullable" style="width: 60px;"/>
+                            <p:column headerText="Data type" style="width: 150px;"/>
+                        </p:row>
+                    </p:columnGroup>
+                    <p:column style="text-align: center">
+                        <p:outputLabel value="#{idx +1}" />
+                    </p:column>
+                    <p:column>
+                        <p:outputLabel value="#{item.physical}" />
+                    </p:column>
+                    <p:column>
+                        <p:outputLabel value="#{item.logical}" />
+                    </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.pk}" disabled="true"/>
+                    </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
+                    </p:column>
+                    <p:column>
+                        <p:outputLabel value="#{item.data_type}" />
+                    </p:column>
+                </p:dataTable>
+            </p:panel>
+        </ui:define>
+        
+        <ui:define name="Func">
+            <pe:layoutPane position="south" closable="false" resizable="false">
+                <h:panelGrid style="padding: 0 10px 0 10px">
+                    <p:commandButton value="#{bundle.BackLabel}" action="#{tableController.back()}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
+                </h:panelGrid>
+            </pe:layoutPane>
+        </ui:define>
+
+    </ui:composition>
+</html>

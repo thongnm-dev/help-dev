@@ -70,7 +70,7 @@ public class DbTableColumnModel {
         if (isNumeric()) {
             if (Objects.nonNull(numeric_precision)) {
                 if (Objects.nonNull(numeric_scale) && numeric_scale > 0) {
-                    return StringUtils.join(data_type, " (", numeric_precision, ",", numeric_scale, ")");
+                    return StringUtils.join(data_type, " (", numeric_precision, ", ", numeric_scale, ")");
                 }
                 return StringUtils.join(data_type, " (", numeric_precision, ")");
             }

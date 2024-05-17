@@ -3,6 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,6 +19,8 @@ public class DbTableColumnModel {
     private String physical;
 
     private String data_type;
+    
+    private String max_length;
 
     private boolean pk;
 
@@ -52,12 +55,26 @@ public class DbTableColumnModel {
         return numerics.stream().anyMatch(character -> StringUtils.contains(data_type, character));
     }
     
-    public boolean isDate() {
-        return StringUtils.contains(data_type, "date");
+    public boolean isDateTime() {
+        List<String> datetimes = Arrays.asList("date", "timestamp");
+        return datetimes.stream().anyMatch(character -> StringUtils.contains(data_type, character));
     }
     
     public boolean isCharacter() {
         List<String> characters = Arrays.asList("varchar", "text", "character");
         return characters.stream().anyMatch(character -> StringUtils.contains(data_type, character));
+    }
+    
+    public String getData_type() {
+        
+        if (isNumeric()) {
+            if (Objects.nonNull(numeric_precision)) {
+                if (Objects.nonNull(numeric_scale) && numeric_scale > 0) {
+                    return StringUtils.join(data_type, " (", numeric_precision, ",", numeric_scale, ")");
+                }
+                return StringUtils.join(data_type, " (", numeric_precision, ")");
+            }
+        }
+        return data_type;
     }
 }

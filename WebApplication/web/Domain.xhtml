@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewAction action="#{domainController.init()}" />
+    </f:metadata>
+
+    <ui:composition template="/templates/window_base.xhtml">
+        <ui:define name="container">
+            <p:panel header="#{bundle.FstSearch}" toggleable="true">
+                <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
+                    <p:outputLabel value="Target" style="padding: 5px"/>
+                    <p:selectOneRadio value="#{domainController.target}">
+                        <f:selectItems value="#{domainController.targeItems}"/>
+                    </p:selectOneRadio>                    
+                    <p:outputLabel value="Table" style="padding: 5px"/>
+                    <p:inputText value="#{domainController.table}" />
+                    <p:outputLabel value="Column" style="padding: 5px"/>
+                    <p:inputText value="#{domainController.column}" />
+                </h:panelGrid>
+                 <p:spacer height="2" />
+                 <p:commandButton icon="#{bundle.ViewIcon}" value="#{bundle.SearchLabel}" update="tblData msg"
+                                  id="btnSearch" actionListener="#{domainController.search()}" />
+            </p:panel>
+            <p:spacer height="2" />
+            <p:panel>
+                <p:dataTable var="item" id="tblData" value="#{domainController.domains}"
+                             paginator="true" widgetVar="dataTableList"
+                             paginatorPosition="top"
+                             scrollable="true"
+                             scrollHeight="420"
+                             first="#{domainController.pageFirstItem}"
+                             rows="#{domainController.rowsPerPage}"
+                             rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"
+                             paginatorTemplate="#{bundle.PaginatorTemplate}" 
+                             currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}">
+                    <p:ajax event="page" listener="#{domainController.setCanSearch(true)}" partialSubmit="true"/>
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column headerText="Table owner" style="width: 250px;"/>
+                            <p:column headerText="Physical" style="width: 150px;"/>
+                            <p:column headerText="Logical" style="width: 200px;"/>
+                            <p:column headerText="Key" style="width: 40px;"/>
+                            <p:column headerText="Nullable" style="width: 40px;"/>
+                            <p:column headerText="Type" style="width: 300px;"/>
+                        </p:row>
+                    </p:columnGroup>
+                    <p:column>
+                        <p:commandLink  style="color: blue" value="#{item.table_physical}" action="#{domainController.showDetail(item)}" process="@this"/>
+                    </p:column>
+                    <p:column>
+                        <p:outputLabel value="#{item.physical}" />
+                    </p:column>
+                    <p:column>
+                        <p:outputLabel value="#{item.logical}" />
+                    </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.pk}" disabled="true"/>
+                    </p:column>
+                    <p:column style="text-align: center">
+                        <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
+                    </p:column>
+                    <p:column><p:outputLabel value="#{item.data_type}" /></p:column>
+                </p:dataTable>
+            </p:panel>
+        </ui:define>
+
+        <ui:define name="Func">
+            <pe:layoutPane position="south" closable="false" resizable="false">
+                <h:panelGrid style="padding: 0 10px 0 10px">
+                    <p:commandButton value="#{bundle.BackLabel}" action="#{domainController.back()}"/>
+                </h:panelGrid>
+            </pe:layoutPane>
+                        
+            <p:blockUI block="body" trigger="btnSearch" widgetVar="buiBasic">
+                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
+            </p:blockUI>
+        </ui:define>
+    </ui:composition>
+</html>

@@ -3,7 +3,9 @@ package controller;
 import common.BaseController;
 import common.Const;
 import common.MessageUtils;
+import common.SelectItemFactory;
 import entity.DbConection;
+import entity.PrmIF;
 import entity.ProjectIF;
 import entity.TableColumnIF;
 import gateway.TableGateway;
@@ -15,8 +17,9 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import entity.TableIF;
+import gateway.PrmGateway;
 import gateway.ProjectGateway;
-import gateway.TableColumnGateway;
+import jakarta.faces.model.SelectItem;
 import java.util.HashMap;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -45,19 +48,10 @@ public class TableController extends BaseController {
     private String target = "0";
 
     @Getter
-    private List<TableModel> tables = null;
-
-    @Inject
-    private TableGateway tableGateway;
+    private String tableName;
 
     @Getter
-    private List<TableColumnModel> columns = null;
-
-    @Inject
-    private TableColumnGateway tblColumnGateway;
-    
-    @Inject
-    private ProjectGateway projectGateway;
+    private String tableLogical;
 
     @Getter
     @Setter
@@ -68,11 +62,34 @@ public class TableController extends BaseController {
     private int rowsPerPage = 25;
 
     @Getter
-    private String tableName;
+    private SelectItem[] targeItems = null;
+    
+    @Getter
+    private SelectItem[] sqlItems = null;
+    
+    @Getter
+    @Setter
+    private List<String> selectedSqls = new ArrayList<>();
 
     @Getter
-    private String tableLogical;
- 
+    private List<TableModel> tables = null;
+
+    @Getter
+    @Setter
+    private TableModel selection = null;
+
+    @Getter
+    private List<TableColumnModel> columns = null;
+
+    @Inject
+    private TableGateway tableGateway;
+
+    @Inject
+    private ProjectGateway projectGateway;
+
+    @Inject
+    private PrmGateway prmGateway;
+
     /**
      *
      * @return @throws Exception
@@ -116,13 +133,25 @@ public class TableController extends BaseController {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
 
             tables = new ArrayList<>();
-            
+
             ModelMapper modelMapper = new ModelMapper();
             TypeMap<TableIF, TableModel> typeMap = modelMapper.createTypeMap(TableIF.class, TableModel.class);
 
             tables = tableGateway.GetTables(wProjectId).stream()
                     .map(wRow -> typeMap.map(wRow))
                     .collect(Collectors.toList());
+
+            List<PrmIF> targets = prmGateway.GetPrms(Const.OPTION_TARGET).stream().collect(Collectors.toList());
+
+            targeItems = SelectItemFactory.INSTANCE.create(targets, false,
+                    (row) -> row.getPrmId(),
+                    (row) -> row.getPrmValue());
+            
+            List<PrmIF> sqls = prmGateway.GetPrms(Const.OPTION_SQL).stream().collect(Collectors.toList());
+
+            sqlItems = SelectItemFactory.INSTANCE.create(sqls, false,
+                    (row) -> row.getPrmId(),
+                    (row) -> row.getPrmValue());
 
             return true;
         } catch (Exception ex) {
@@ -144,7 +173,7 @@ public class TableController extends BaseController {
 
                 TypeMap<TableIF, TableModel> typeMap = modelMapper.createTypeMap(TableIF.class, TableModel.class);
 
-                tables =  tableGateway.GetTables(wProjectId).stream()
+                tables = tableGateway.GetTables(wProjectId).stream()
                         .map(wRow -> typeMap.map(wRow))
                         .collect(Collectors.toList());
             } else {
@@ -159,8 +188,7 @@ public class TableController extends BaseController {
                     }
                 };
 
-                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
-                        EntityManager manager = emf.createEntityManager()) {
+                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
 
                     // Retrieve all tables
                     tableGateway.GetTables(manager, dbConection.getDbSchema()).stream()
@@ -178,7 +206,7 @@ public class TableController extends BaseController {
                                     model.setProject_id(wProjectId);
                                     tables.add(model);
                                 } catch (Exception e) {
-                                    System.out.println("Controller.TableController.search()");
+                                    addErrorMsg(MessageUtils.getMessage("E0001"));
                                 }
                             });
                 }
@@ -227,7 +255,7 @@ public class TableController extends BaseController {
                 ModelMapper modelMapper = new ModelMapper();
                 TypeMap<TableColumnIF, TableColumnModel> typeMap = modelMapper.createTypeMap(TableColumnIF.class, TableColumnModel.class);
 
-                columns = tblColumnGateway.GetTableColumns(wProjectId, tableName).stream()
+                columns = tableGateway.GetTableColumns(wProjectId, tableName).stream()
                         .map(wRow -> typeMap.map(wRow))
                         .collect(Collectors.toList());
             } else {
@@ -242,11 +270,10 @@ public class TableController extends BaseController {
                     }
                 };
 
-                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
-                        EntityManager manager = emf.createEntityManager()) {
+                try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
 
                     // Retrieve all tables
-                    tblColumnGateway.GetTableColumns(manager, dbConection.getDbSchema(), wTblPhysical).stream()
+                    tableGateway.GetTableColumns(manager, dbConection.getDbSchema(), wTblPhysical).stream()
                             .forEach(wRow -> {
                                 TableColumnModel model = new TableColumnModel();
                                 try {
@@ -277,5 +304,26 @@ public class TableController extends BaseController {
 
     public String back() {
         return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
+    }
+    
+    public void exec() {
+        
+    }
+    
+    public String ShowForm(String url) {
+        
+        Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
+        String wScrUrl = Const.SCR_INFO.get(url);
+
+        setScrIFToSession(url, "pProjectId", wProjectId);
+        setScrIFToSession(url, "pTblPhysical", selection.getPhysical());
+        setScrIFToSession(url, "pTarget", target);
+        setScrIFToSession(url, "pTableId", selection.getId());
+        setScrIFToSession(url, "pTblPhysical", selection.getPhysical());
+        setScrIFToSession(url, "pTblLogical", selection.getLogical());
+
+        setBackScreenIdToSession(url, Const.SCR_INFO.get(SRC_TABLE));
+        
+        return redirect(wScrUrl);
     }
 }

@@ -9,11 +9,11 @@ import jakarta.persistence.criteria.Root;
 import java.util.Collection;
 
 @Stateless
-public class PrmGateway extends BaseGateway<PrmIF> {
+public class PrmGateway extends BaseGateway {
     
     
     public Collection<PrmIF> GetPrms(String prmCd) {
-        CriteriaBuilder criteriaBuilder = getCriteriaBuilder();
+        CriteriaBuilder criteriaBuilder = CriteriaBuilder();
         
         CriteriaQuery<PrmIF> criteriaQuery = criteriaBuilder.createQuery(PrmIF.class);
         Root<PrmIF> root = criteriaQuery.from(PrmIF.class);

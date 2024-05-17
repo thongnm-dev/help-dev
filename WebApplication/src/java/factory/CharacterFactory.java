@@ -1,6 +1,8 @@
 package factory;
 
 import common.Const;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -17,17 +19,20 @@ public enum CharacterFactory {
 
     private final String ALPHA_NUM = "ABCDEFGHIJKLMNOPRSTUVWXYZabcdefghijklmnoprstuvwxyz0123456789";
 
-    public String random(String pCharacterSetType, String dataType) {
+    public String random(Map<String, Object> param) {
 
-        switch (pCharacterSetType) {
+        final String random = (String) param.getOrDefault("random", "");
+        final int max_length = (int) param.getOrDefault("max_length", 255);
+
+        switch (random) {
             case Const.Random.ALPHA -> {
-                return text(ALPHA, dataType);
+                return text(ALPHA, max_length);
             }
             case Const.Random.NUM -> {
-                return text(NUM_CHARACTER, dataType);
+                return text(NUM_CHARACTER, max_length);
             }
             case Const.Random.ALPHA_NUM -> {
-                return text(ALPHA_NUM, dataType);
+                return text(ALPHA_NUM, max_length);
             }
             default -> {
             }
@@ -36,17 +41,17 @@ public enum CharacterFactory {
         return StringUtils.EMPTY;
     }
 
-    private String text(String pCharacterSet, String pMaxLength) {
-//        if (pMaxLength <=0 ) {
-//            pMaxLength = 255;
-//        }
+    private String text(String pCharacterSet, int length) {
+        if (length <=0 ) {
+            length = 255;
+        }
 
         StringBuilder wText = new StringBuilder();
         int wCharacterSetLength = pCharacterSet.length();
 
-//        for (int i = 0; i < pMaxLength; i++) {
-//            wText.append(pCharacterSet.charAt(ThreadLocalRandom.current().nextInt(wCharacterSetLength)));
-//        }
+        for (int i = 0; i < length; i++) {
+            wText.append(pCharacterSet.charAt(ThreadLocalRandom.current().nextInt(wCharacterSetLength)));
+        }
 
         return wText.toString();
     }

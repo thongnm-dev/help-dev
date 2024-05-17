@@ -11,7 +11,7 @@ import jakarta.persistence.criteria.Root;
 import java.util.Objects;
 
 @Stateless
-public class ProjectGateway extends BaseGateway<ProjectIF> {
+public class ProjectGateway extends BaseGateway {
 
     public Collection<ProjectIF> GetAll() {
 
@@ -21,7 +21,7 @@ public class ProjectGateway extends BaseGateway<ProjectIF> {
     }
 
     public ProjectIF GetById(Long projectId) {
-        CriteriaBuilder criteriaBuilder = getCriteriaBuilder();
+        CriteriaBuilder criteriaBuilder = CriteriaBuilder();
 
         CriteriaQuery<ProjectIF> criteriaQuery = criteriaBuilder.createQuery(ProjectIF.class);
         Root<ProjectIF> userRoot = criteriaQuery.from(ProjectIF.class);

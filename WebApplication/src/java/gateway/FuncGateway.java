@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Stateless
-public class FuncGateway extends BaseGateway<FuncIf> {
+public class FuncGateway extends BaseGateway {
 
     public Collection<FuncIf> GetFuncs(Long projectId) {
         
-        CriteriaBuilder criteriaBuilder = getCriteriaBuilder();
+        CriteriaBuilder criteriaBuilder = CriteriaBuilder();
         
         CriteriaQuery<FuncIf> criteriaQuery = criteriaBuilder.createQuery(FuncIf.class);
         Root<FuncIf> userRoot = criteriaQuery.from(FuncIf.class);

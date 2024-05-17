@@ -42,6 +42,9 @@ public class SqlBuilderController extends BaseController {
             addErrorMsg(MessageUtils.getMessage("E0001"));
             return redirect(getBackScr(SRC_ID));
         }
+        
+        getSession().put(C_SESSION_KEY_SCR, SRC_ID);
+        
         return Const.SCR_INFO.get(SRC_ID);
     }
 

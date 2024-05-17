@@ -12,32 +12,27 @@
     </f:metadata>
 
     <ui:composition template="/templates/window_base.xhtml">
-        <ui:define name="content_title">
-            <p:panel class="content_title" id="content_title">
-                <h:outputLabel>Danh sách table</h:outputLabel>
-            </p:panel>
-        </ui:define>
-
         <ui:define name="container">
             <p:panel header="#{bundle.FstSearch}" toggleable="true">
                 <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
                     <p:outputLabel value="Load from: " style="padding: 5px"/>
-                    <p:selectOneRadio value="#{tableController.target}" id="saveBtn">
-                        <f:selectItem itemValue="0" itemLabel="Layout" />
-                        <f:selectItem itemValue="1" itemLabel="DDL" />
+                    <p:selectOneRadio value="#{tableController.target}" id="cbTarget">
+                        <f:selectItems value="#{tableController.targeItems}"/>
                         <p:ajax event="change" listener="#{tableController.search()}"  update="msg tblData"/>
                     </p:selectOneRadio> 
                 </h:panelGrid> 
             </p:panel>
-            <p:blockUI block="pnlDataTable" trigger="saveBtn" widgetVar="buiBasic">
+            <p:blockUI block="body" trigger="cbTarget btnRefresh" widgetVar="buiBasic">
                 <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
             </p:blockUI>
             <p:spacer height="2" />
             <p:panel id="pnlDataTable">
                 <p:dataTable var="item" value="#{tableController.tables}" id="tblData" rowIndexVar="idx"
+                             rowKey="#{item.physical}" selectionMode="single" rowSelector="none"
+                             selection="#{tableController.selection}"
                              paginator="true" widgetVar="dataTableList"
                              paginatorPosition="top"
-                             scrollHeight="440"
+                             scrollHeight="475"
                              scrollable="true"
                              first="#{tableController.pageFirstItem}"
                              rows="#{tableController.rowsPerPage}"
@@ -58,13 +53,24 @@
                         <p:outputLabel value="#{item.logical_v}" />
                     </p:column>
                 </p:dataTable>
+                <p:toolbar style="background: none; margin-top: 10px; border: none">
+                    <p:toolbarGroup align="left">
+                        <p:commandButton id="btnRefresh" icon="pi pi-refresh" update="msg tblData" actionListener="#{tableController.search()}"/>                        
+                    </p:toolbarGroup>
+                </p:toolbar>
             </p:panel>
+            
+            <p:contextMenu for="tblData" selectionMode="single" >
+                <p:menuitem value="Tạo dữ liệu csv" icon="pi pi-file-export" action="#{tableController.ShowForm('DBTOOLS')}"/>
+                <p:menuitem value="Compare" title="Layout và DDL" icon="pi pi-code"/>
+                <p:menuitem value="View" icon="pi pi-eye" action="#{tableController.ShowForm('TABLE_COL')}"/>
+            </p:contextMenu>
         </ui:define>
-
         <ui:define name="Func">
             <pe:layoutPane position="south" closable="false" resizable="false">
-                <h:panelGrid style="padding: 0 10px 0 10px">
-                    <p:commandButton value="#{bundle.BackLabel}" action="#{tableController.back()}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
+                <h:panelGrid columns="1" style="padding: 0 10px 0 10px">
+                    <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" 
+                                     action="#{tableController.back()}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
                 </h:panelGrid>
             </pe:layoutPane>
         </ui:define>

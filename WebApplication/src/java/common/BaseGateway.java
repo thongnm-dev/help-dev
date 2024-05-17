@@ -9,13 +9,13 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-public class BaseGateway<T> {
+public class BaseGateway {
 
     @PersistenceContext(name = "DevPU")
     @Getter(AccessLevel.PROTECTED)
     private EntityManager entityManager;
 
-    protected CriteriaBuilder getCriteriaBuilder() {
+    protected CriteriaBuilder CriteriaBuilder() {
         return entityManager.getCriteriaBuilder();
     }
     

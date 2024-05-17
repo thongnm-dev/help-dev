@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,97 +33,145 @@ public enum DataFactory {
         return "";
     }
 
-    private String performSeqVal(Map<String, Object> params) {
+    private String performSeqVal(Map<String, Object> param) {
 
-//        Pattern wPattern = Pattern.compile("(\\D*)(\\d+)");
-//        Matcher wMatcher = wPattern.matcher(pColumnInfo.getCriteriaSet());
-//        String wGenerate = StringUtils.EMPTY;
-//        int wIncrementalValue = 0;
-//
-//        if (StringUtils.isBlank(pColumnInfo.getIncremental())) {
-//            wIncrementalValue = pRecordIndex;
-//        } else {
-//            wIncrementalValue = pRecordIndex * Integer.parseInt(pColumnInfo.getIncremental());
-//        }
-//
-//        if (wMatcher.matches()) {
-//            String wNonNumericPart = wMatcher.group(1);
-//            String wNumericPart = wMatcher.group(2);
-//            long wNumericValue = Long.parseLong(wNumericPart);
-//
-//            wNumericValue += wIncrementalValue;
-//
-//            if (pColumnInfo.isNumeric()) {
-//                long wMaxValue = (long) Double.parseDouble(NumericGenerateFactory.getMaxRangeValue(pColumnInfo)) + 1;
-//                wGenerate = NumericGenerateFactory.getNumberWithScale(wNumericValue % wMaxValue,
-//                        pColumnInfo.getNumeric_scale());
-//            } else {
-//                int wIncrementLength = pColumnInfo.getMaxLength() - wNonNumericPart.length();
-//                wGenerate = StringUtils.join(wNonNumericPart,
-//                        paddingZero((long) (wNumericValue % Math.pow(10, wIncrementLength)), wIncrementLength));
-//            }
-//        } else {
-//
-//            if (pColumnInfo.isNumeric()) {
-//                long wMaxValue = (long) Double.parseDouble(NumericGenerateFactory.getMaxRangeValue(pColumnInfo)) + 1;
-//                wGenerate = NumericGenerateFactory.getNumberWithScale(
-//                        (Double.parseDouble(pColumnInfo.getCriteriaSet()) + wIncrementalValue) % wMaxValue, pColumnInfo.getNumeric_scale());
-//            } else {
-//                int wIncrementLength = pColumnInfo.getMaxLength() - pColumnInfo.getCriteriaSet().length();
-//                wGenerate = StringUtils.join(pColumnInfo.getCriteriaSet(),
-//                        paddingZero((long) (wIncrementalValue % Math.pow(10, wIncrementLength)), wIncrementLength));
-//            }
-//
-//        }
-        return "";
+        Pattern wPattern = Pattern.compile("(\\D*)(\\d+)");
+        final String refVal = (String) param.getOrDefault("ref", "");
+        int rowNum = (int) param.get("no");
+
+        Matcher wMatcher = wPattern.matcher(refVal);
+
+        String matcherRef = wMatcher.matches() ? wMatcher.group(1) : refVal;
+
+        long wNumericValue = wMatcher.matches() ? Long.parseLong(wMatcher.group(2)) : Long.parseLong(refVal);
+
+        // the column is numeric
+        if (param.containsKey("numeric")) {
+            return NumericFactory.INSTANCE.sequence(param, wNumericValue);
+        }
+
+        // the column is character varying
+        if (param.containsKey("character")) {
+            final int length = (int) ((Map) param.get("character")).getOrDefault("max_length", 0);
+
+            int wIncrementLength = length - StringUtils.length(matcherRef);
+
+            return StringUtils.join(matcherRef, paddingZero((long) (wNumericValue % Math.pow(10, wIncrementLength)), wIncrementLength));
+        }
+
+        // The column is date
+        if (param.containsKey("datetime")) {
+            return DateTimeFactory.INSTANCE.sequence(param, rowNum);
+        }
+        
+        return StringUtils.EMPTY;
     }
 
-    private String performFixedVal(Map<String, Object> params) {
-        final String refVal = (String) params.getOrDefault("ref", "");
-        final boolean numeric = (boolean) params.getOrDefault("numeric", false);
-         if (StringUtils.isBlank(refVal)) {
-            if (numeric) {
-                return "0";
-            }
-            return StringUtils.SPACE;
+    private String performFixedVal(Map<String, Object> param) {
+        final String refVal = (String) param.getOrDefault("ref", "");
+
+        // the column is numeric
+        if (param.containsKey("numeric")) {
+
+            return StringUtils.isNumeric(refVal) ? refVal : "0";
+        }
+
+        // the column is character varying
+        if (param.containsKey("character")) {
+            return refVal;
+        }
+
+        // The column is date
+        if (param.containsKey("datetime")) {
+            return DateTimeFactory.INSTANCE.fixed(param);
         }
 
         return StringUtils.trim(refVal);
     }
 
-    private String performRandomVal(Map<String, Object> params) {
-        
-        final boolean numeric = params.containsKey("numeric");
-        
-        final boolean character = (boolean) params.getOrDefault("character", false);
-        final String param = (String) params.getOrDefault("param", false);
+    private String performRandomVal(Map<String, Object> param) {
 
-        if (numeric) {
-            final Map<String, Object> numMap = (Map) params.get("numeric");
-            if (StringUtils.isNotBlank(param)) {
-                List<String> wParams = Arrays.stream(StringUtils.split(param, ","))
+        final String paramVal = (String) param.getOrDefault("param", false);
+
+        // the column is numeric
+        if (param.containsKey("numeric")) {
+            final Map<String, Object> numMap = (Map) param.get("numeric");
+
+            if (StringUtils.isNotBlank(paramVal)) {
+
+                List<String> wParams = Arrays.stream(StringUtils.split(paramVal, ","))
                         .map(String::trim)
                         .collect(Collectors.toList());
+
                 Collections.sort(wParams);
 
-                return NumericFactory.INSTANCE.range(wParams.get(0), wParams.get(1), (Integer) numMap.get("scale"));
+                return NumericFactory.INSTANCE.range(wParams.get(0), Double.valueOf(wParams.get(1)), (Integer) numMap.get("scale"));
             }
 
-            return NumericFactory.INSTANCE.random(params);
-        } else if (character) {
-            final String random = (String) params.getOrDefault("random", "");
-            final String dataType = (String) params.getOrDefault("data_type", "text");
-            
-            return CharacterFactory.INSTANCE.random(random, dataType);
+            return NumericFactory.INSTANCE.random(param);
+
         }
-        return "";
+
+        // the column is character varying
+        if (param.containsKey("character")) {
+            return CharacterFactory.INSTANCE.random(param);
+        }
+
+        // The column is date
+        if (param.containsKey("datetime")) {
+            return DateTimeFactory.INSTANCE.random(param);
+        }
+        
+        return StringUtils.EMPTY;
     }
 
-    private String performRangeVal(Map<String, Object> params) {
-        final String paramStr = (String) params.get("param");
-        final List<String> wParams = Arrays.stream(StringUtils.split(paramStr, ",")).map(String::trim)
-                        .collect(Collectors.toList());
+    /**
+     *
+     * @param param
+     * @return
+     */
+    private String performRangeVal(Map<String, Object> param) {
+        final String paramStr = (String) param.get("param");
 
-        return wParams.get(ThreadLocalRandom.current().nextInt(wParams.size()));
+        final List<String> wParams = Arrays.stream(StringUtils.split(paramStr, ","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        
+        // the column is numeric
+        if (param.containsKey("numeric")) {
+            return wParams.get(ThreadLocalRandom.current().nextInt(wParams.size()));
+        }
+
+        // the column is character varying
+        if (param.containsKey("character")) {
+            return CharacterFactory.INSTANCE.random(param);
+        }
+
+        // The column is date
+        if (param.containsKey("datetime")) {
+            return DateTimeFactory.INSTANCE.range(param);
+        }
+        
+        return StringUtils.EMPTY;
+    }
+
+    /**
+     *
+     * @param number
+     * @param pLength
+     * @return
+     */
+    private String paddingZero(long number, int pLength) {
+        return paddingZero(String.valueOf(number), pLength);
+    }
+
+    /**
+     *
+     * @param pText
+     * @param pLength
+     * @return
+     */
+    private String paddingZero(String pText, int pLength) {
+        return StringUtils.leftPad(pText, pLength, "0");
     }
 }

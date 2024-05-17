@@ -11,7 +11,6 @@ import entity.TableIF;
 import factory.DataFactory;
 import gateway.PrmGateway;
 import gateway.ProjectGateway;
-import gateway.TableColumnGateway;
 import gateway.TableGateway;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
@@ -61,6 +60,10 @@ public class DbToolBeltController extends BaseController {
     @Getter
     @Setter
     private BigDecimal record = null;
+    
+    @Getter
+    @Setter
+    private boolean settingDefault = false;
 
     @Getter
     private SelectItem[] tableItems = null;
@@ -85,14 +88,11 @@ public class DbToolBeltController extends BaseController {
     private TableGateway tableGateway;
 
     @Inject
-    private TableColumnGateway tblColumnGateway;
-
-    @Inject
     private PrmGateway prmGateway;
-    
+
     @Getter
     private StreamedContent fileDownload;
-    
+
     public boolean getDisable() {
         return StringUtils.isBlank(tableTarget);
     }
@@ -110,6 +110,7 @@ public class DbToolBeltController extends BaseController {
 
     /**
      * init data
+     *
      * @return @throws Exception
      */
     private boolean initData() throws Exception {
@@ -120,6 +121,8 @@ public class DbToolBeltController extends BaseController {
             tableTarget = "";
 
             Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
+            
+            tableTarget = this.<String>getScrFromSession(SRC_ID, "pTblPhysical");
 
             List<TableIF> tables = tableGateway.GetTables(wProjectId).stream().collect(Collectors.toList());
 
@@ -139,6 +142,9 @@ public class DbToolBeltController extends BaseController {
                     (row) -> row.getPrmId(),
                     (row) -> row.getPrmValue());
 
+            if (StringUtils.isNotBlank(tableTarget)) {
+                load();
+            }
             return true;
         } catch (Exception ex) {
             return false;
@@ -164,10 +170,11 @@ public class DbToolBeltController extends BaseController {
                 }
             };
 
-            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
+                    EntityManager manager = emf.createEntityManager()) {
 
                 // Retrieve all tables
-                tblColumnGateway.GetTableColumns(manager, dbConection.getDbSchema(), tableTarget).stream()
+                tableGateway.GetTableColumns(manager, dbConection.getDbSchema(), tableTarget).stream()
                         .forEach(wRow -> {
                             DbTableColumnModel model = new DbTableColumnModel();
                             try {
@@ -194,7 +201,8 @@ public class DbToolBeltController extends BaseController {
 
     /**
      * perform click back
-     * @return 
+     *
+     * @return
      */
     public String back() {
         return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
@@ -202,7 +210,8 @@ public class DbToolBeltController extends BaseController {
 
     /**
      * perform click execute
-     * @return 
+     *
+     * @return
      */
     public String exec() {
         Path wTempFolderPath = null;
@@ -212,7 +221,7 @@ public class DbToolBeltController extends BaseController {
                 addErrorMsg(MessageUtils.getMessage("E0002"));
                 return null;
             }
-            String wSystemDate = MtDate.now().format(Const.DateFormat.DATETIME_FORMAT);
+            String wSystemDate = MtDate.now().format(Const.DateFormat.None.DATETIME);
             wTempFolderPath = Files.createTempDirectory(wSystemDate);
             int wStart = 0;
 
@@ -243,19 +252,29 @@ public class DbToolBeltController extends BaseController {
                             params.put("random", model.getRandom());
                             params.put("param", model.getParam());
                             params.put("ref", model.getRef());
-                            
+                            params.put("sequence", model.getIncre());
+
                             if (model.isNumeric()) {
                                 params.put("numeric", new HashMap<String, Object>() {
                                     {
-                                       params.put("precision", model.getNumeric_precision()); 
-                                       params.put("scale", model.getNumeric_scale()); 
+                                        params.put("precision", model.getNumeric_precision());
+                                        params.put("scale", model.getNumeric_scale());
                                     }
                                 });
-                                
+
                             }
-                            params.put("character", model.isCharacter());
-                            params.put("date", model.isDate());
-                            params.put("sequence", model.getIncre());
+
+                            if (model.isCharacter()) {
+                                params.put("character", new HashMap<String, Object>() {
+                                    {
+                                        put("max_length", model.getMax_length());
+                                    }
+                                });
+                            }
+
+                            if (model.isDateTime()) {
+                                params.put("datetime", new HashMap<String, Object>());
+                            }
 
                             wDataGenerated.add(DataFactory.INSTANCE.perform(params));
                         }
@@ -270,36 +289,36 @@ public class DbToolBeltController extends BaseController {
                 File fileZip = new File(wTempFolderPath.toFile(), tableTarget);
                 ZipFile wZipFile = new ZipFile(fileZip);
                 wZipFile.setCharset(Charset.forName("MS932"));
-                
+
                 Files.walk(wTempFolderPath)
-                    .filter(Files::isRegularFile)
-                    .filter(wPath -> "CSV".equals(FilenameUtils.getExtension(wPath.toString()).toUpperCase()))
-                    .forEach((Path wPath) -> {
-                        try {
-                            ZipParameters wZipParameter = new ZipParameters();
-                            wZipParameter.setFileNameInZip(wPath.toFile().getName());
-                            wZipFile.addFile(wPath.toFile(), wZipParameter);
-                        } catch (ZipException ex) {
-                            addErrorMsg(MessageUtils.getMessage("E0001"));
-                        }
-                    });
+                        .filter(Files::isRegularFile)
+                        .filter(wPath -> "CSV".equals(FilenameUtils.getExtension(wPath.toString()).toUpperCase()))
+                        .forEach((Path wPath) -> {
+                            try {
+                                ZipParameters wZipParameter = new ZipParameters();
+                                wZipParameter.setFileNameInZip(wPath.toFile().getName());
+                                wZipFile.addFile(wPath.toFile(), wZipParameter);
+                            } catch (ZipException ex) {
+                                addErrorMsg(MessageUtils.getMessage("E0001"));
+                            }
+                        });
 
                 InputStream stream = Files.newInputStream(fileZip.toPath());
 
                 fileDownload = DefaultStreamedContent.builder()
-                                    .name(tableTarget)
-                                    .contentType("application/zip")
-                                    .stream(() -> stream)
-                                    .build();
+                        .name(tableTarget)
+                        .contentType("application/zip")
+                        .stream(() -> stream)
+                        .build();
             } else {
                 Path fileTarget = Files.walk(wTempFolderPath).filter(Files::isRegularFile).findFirst().get();
                 InputStream stream = Files.newInputStream(fileTarget);
                 fileDownload = DefaultStreamedContent.builder()
-                                    .name(tableTarget)
-                                    .contentType("text/csv")
-                                    .stream(() -> stream)
-                                    .build();
-                        
+                        .name(tableTarget)
+                        .contentType("text/csv")
+                        .stream(() -> stream)
+                        .build();
+
             }
 
         } catch (Exception e) {
@@ -344,10 +363,11 @@ public class DbToolBeltController extends BaseController {
                     if (currentItem.isNumeric()) {
                         currentItem.setDisable_random_otp(true);
                         currentItem.setRandom(Const.Random.NUM);
+
                     } else {
-                        currentItem.setDisable_random_otp(currentItem.isDate());
+                        currentItem.setDisable_random_otp(currentItem.isDateTime());
                     }
-                    
+
                     currentItem.setDisable_param(Const.Random.NUM.equals(currentItem.getRandom()));
                 }
                 case Const.Setting.RANGE -> {
@@ -371,7 +391,7 @@ public class DbToolBeltController extends BaseController {
             currentItem.setDisable_param(!Const.Random.NUM.equals(currentItem.getRandom()));
         }
     }
-    
+
     public boolean checkData() {
         return true;
     }

@@ -10,3 +10,11 @@ table.headline_first_columns_center tr:nth-child(1) td:nth-child(n) {
     background-color: #b6d3fa;
     text-align: center;
 }
+
+table.none_border tbody > tr , table.none_border  tbody > tr > td {
+    border: none !important
+}
+
+table.none_border tbody tr:nth-child(n - 1) {
+    background-color: #b6d3fa !important;
+}

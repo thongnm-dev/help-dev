@@ -2,6 +2,7 @@ package controller;
 
 import common.BaseController;
 import common.Const;
+import common.MessageUtils;
 import gateway.MstGateway;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -34,10 +35,21 @@ public class MstController extends BaseController {
     @Getter
     @Setter
     private boolean canSearch = false;
-    
+
     public String init() throws Exception {
 
+        if (!initData()) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+            return redirect(getBackScr(SRC_ID));
+        }
+
+        getSession().put(C_SESSION_KEY_SCR, SRC_ID);
         return Const.SCR_INFO.get(SRC_ID);
+    }
+
+    private boolean initData() throws Exception {
+
+        return true;
     }
 
     public void search() {

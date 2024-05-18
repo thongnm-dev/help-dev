@@ -13,6 +13,7 @@ import gateway.PrmGateway;
 import gateway.ProjectGateway;
 import gateway.TableGateway;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.inject.Inject;
@@ -20,11 +21,11 @@ import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,10 +46,10 @@ import net.lingala.zip4j.model.ZipParameters;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.persistence.config.EntityManagerProperties;
-import org.primefaces.model.DefaultStreamedContent;
-import org.primefaces.model.StreamedContent;
+import org.primefaces.PrimeFaces;
 import org.primefaces.shaded.commons.io.FilenameUtils;
 
 @Named
@@ -59,11 +60,27 @@ public class DbToolBeltController extends BaseController {
 
     @Getter
     @Setter
+    private String tableTarget;
+
+    @Getter
+    @Setter
     private BigDecimal record = null;
-    
+
     @Getter
     @Setter
     private boolean settingDefault = false;
+
+    @Getter
+    @Setter
+    private boolean autoFullsize = false;
+
+    @Getter
+    @Setter
+    private boolean autoFixError = false;
+
+    @Getter
+    @Setter
+    private boolean autoFillMaxLength = false;
 
     @Getter
     private SelectItem[] tableItems = null;
@@ -80,18 +97,15 @@ public class DbToolBeltController extends BaseController {
     @Inject
     private ProjectGateway projectGateway;
 
-    @Getter
-    @Setter
-    private String tableTarget;
-
     @Inject
     private TableGateway tableGateway;
 
     @Inject
     private PrmGateway prmGateway;
 
-    @Getter
-    private StreamedContent fileDownload;
+    private Map<String, Object> columnHistorySetting = new HashMap<>();
+
+    private Map<String, Object> columnFullSizeSetting = new HashMap<>();
 
     public boolean getDisable() {
         return StringUtils.isBlank(tableTarget);
@@ -116,12 +130,11 @@ public class DbToolBeltController extends BaseController {
     private boolean initData() throws Exception {
 
         try {
-            columns = new ArrayList<>();
 
-            tableTarget = "";
+            clearData();
 
             Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
-            
+
             tableTarget = this.<String>getScrFromSession(SRC_ID, "pTblPhysical");
 
             List<TableIF> tables = tableGateway.GetTables(wProjectId).stream().collect(Collectors.toList());
@@ -170,8 +183,7 @@ public class DbToolBeltController extends BaseController {
                 }
             };
 
-            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
-                    EntityManager manager = emf.createEntityManager()) {
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
 
                 // Retrieve all tables
                 tableGateway.GetTableColumns(manager, dbConection.getDbSchema(), tableTarget).stream()
@@ -208,6 +220,70 @@ public class DbToolBeltController extends BaseController {
         return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
     }
 
+    public void handleChangeDefault() {
+        try {
+
+            if (settingDefault) {
+                int maxLengthCheck = Integer.parseInt(columnFullSizeSetting.getOrDefault("max_length_default", "31").toString());
+                for (DbTableColumnModel columnModel : columns) {
+                    columnModel.setSetting(Const.Setting.RANDOM);
+
+                    if (columnModel.isNumeric()) {
+                        columnModel.setRandom(Const.Random.NUM);
+                        columnModel.setDisable_random(true);
+                        columnModel.setDisable_param(true);
+                        columnModel.setDisable_fixed(true);
+                        columnModel.setDisable_sequence(true);
+                    } else if (columnModel.isDateTime()) {
+                        columnModel.setRandom(Const.Random.NUM);
+                        columnModel.setDisable_random(true);
+                        columnModel.setDisable_param(false);
+                        columnModel.setDisable_fixed(true);
+                        columnModel.setDisable_sequence(true);
+                    } else {
+                        columnModel.setRandom(Const.Random.ALPHA_NUM);
+                        columnModel.setDisable_random(false);
+                        columnModel.setDisable_param(false);
+                        columnModel.setDisable_fixed(true);
+                        columnModel.setDisable_sequence(true);
+
+                        if (columnHistorySetting.containsKey(columnModel.getPhysical())) {
+
+                        }
+
+                        if (StringUtils.isNotBlank(columnModel.getMax_length())) {
+                            if (Integer.parseInt(columnModel.getMax_length()) > maxLengthCheck) {
+                                columnModel.setSetting(Const.Setting.DEF);
+                                columnModel.setFixed(columnModel.getLogical());
+                                columnModel.setDisable_random(true);
+                                columnModel.setDisable_fixed(false);
+                                columnModel.setDisable_sequence(false);
+                                columnModel.setRandom(StringUtils.EMPTY);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+        }
+    }
+
+    public void handleFillMaxLength() {
+        try {
+
+            if (autoFillMaxLength) {
+                for (DbTableColumnModel columnModel : columns) {
+                    if (columnModel.isCharacter()) {
+                        columnModel.setFillMaxlength(autoFillMaxLength);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+        }
+    }
+
     /**
      * perform click execute
      *
@@ -221,13 +297,14 @@ public class DbToolBeltController extends BaseController {
                 addErrorMsg(MessageUtils.getMessage("E0002"));
                 return null;
             }
+
             String wSystemDate = MtDate.now().format(Const.DateFormat.None.DATETIME);
             wTempFolderPath = Files.createTempDirectory(wSystemDate);
             int wStart = 0;
 
-            List<String> csvHeader = columns.stream()
+            String[] csvHeader = columns.stream()
                     .map(column -> column.getPhysical())
-                    .toList();
+                    .toArray(String[]::new);
 
             while (wStart < record.intValue()) {
                 int wEnd = Math.min(wStart + Const.DEFAULT_MAX_RECORD_OF_FILE, record.intValue());
@@ -237,7 +314,7 @@ public class DbToolBeltController extends BaseController {
                 Path csvFilePath = Paths.get(wTempFolderPath.toString(), wFilename);
                 try (Writer writer = Files.newBufferedWriter(csvFilePath);) {
 
-                    CSVPrinter wPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(StringUtils.join(csvHeader, ",")));
+                    CSVPrinter wPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvHeader));
 
                     for (int i = wStart; i < wEnd; i++) {
                         final int index = i;
@@ -251,8 +328,8 @@ public class DbToolBeltController extends BaseController {
                             params.put("setting", model.getSetting());
                             params.put("random", model.getRandom());
                             params.put("param", model.getParam());
-                            params.put("ref", model.getRef());
-                            params.put("sequence", model.getIncre());
+                            params.put("fixed", model.getFixed());
+                            params.put("sequence", model.getSequence());
 
                             if (model.isNumeric()) {
                                 params.put("numeric", new HashMap<String, Object>() {
@@ -261,15 +338,20 @@ public class DbToolBeltController extends BaseController {
                                         params.put("scale", model.getNumeric_scale());
                                     }
                                 });
-
                             }
 
                             if (model.isCharacter()) {
-                                params.put("character", new HashMap<String, Object>() {
-                                    {
-                                        put("max_length", model.getMax_length());
+                                int maxLengthCheck = Integer.parseInt(columnFullSizeSetting.getOrDefault("max_length_default", "31").toString());
+                                Map<String, Object> value = new HashMap<>();
+                                params.put("character", value);
+                                value.put("fill_max_length", model.isFillMaxlength());
+                                value.put("max_length", Integer.valueOf(model.getMax_length()));
+
+                                if (StringUtils.isNotBlank(model.getMax_length())) {
+                                    if (Integer.parseInt(model.getMax_length()) > maxLengthCheck) {
+                                        value.put("full_size", autoFullsize);
                                     }
-                                });
+                                }
                             }
 
                             if (model.isDateTime()) {
@@ -279,11 +361,17 @@ public class DbToolBeltController extends BaseController {
                             wDataGenerated.add(DataFactory.INSTANCE.perform(params));
                         }
 
-                        wPrinter.printRecord(StringUtils.join(wDataGenerated, ","));
+                        wPrinter.printRecord(wDataGenerated.stream().toArray());
                     }
                 }
                 wStart = wEnd;
             }
+
+            FacesContext wContext = FacesContext.getCurrentInstance();
+            ExternalContext wExternalContext = wContext.getExternalContext();
+
+            HttpServletResponse wResponse = (HttpServletResponse) wExternalContext.getResponse();
+            wResponse.reset();
 
             if ((wStart - Const.DEFAULT_MAX_RECORD_OF_FILE) > 0) {
                 File fileZip = new File(wTempFolderPath.toFile(), tableTarget);
@@ -303,37 +391,38 @@ public class DbToolBeltController extends BaseController {
                             }
                         });
 
-                InputStream stream = Files.newInputStream(fileZip.toPath());
-
-                fileDownload = DefaultStreamedContent.builder()
-                        .name(tableTarget)
-                        .contentType("application/zip")
-                        .stream(() -> stream)
-                        .build();
+                wResponse.setContentType("application/zip");
+                wResponse.setHeader("Content-Disposition",
+                        StringUtils.join("attachment;filename=", URLEncoder.encode(tableTarget + ".zip", "UTF-8")));
+                wResponse.getOutputStream().write(Files.readAllBytes(fileZip.toPath()));
+                wContext.responseComplete();
             } else {
                 Path fileTarget = Files.walk(wTempFolderPath).filter(Files::isRegularFile).findFirst().get();
-                InputStream stream = Files.newInputStream(fileTarget);
-                fileDownload = DefaultStreamedContent.builder()
-                        .name(tableTarget)
-                        .contentType("text/csv")
-                        .stream(() -> stream)
-                        .build();
 
+                wResponse.setContentType("text/csv");
+                wResponse.setHeader("Content-Disposition", StringUtils.join("attachment;filename=", URLEncoder.encode(tableTarget + ".csv", "UTF-8")));
+                wResponse.getOutputStream().write(Files.readAllBytes(fileTarget));
+                wContext.responseComplete();
             }
-
         } catch (Exception e) {
             addErrorMsg(MessageUtils.getMessage("E0001"));
         } finally {
-            if (wTempFolderPath != null) {
-                try {
-                    Files.delete(wTempFolderPath);
-                } catch (IOException ex) {
-                    addErrorMsg(MessageUtils.getMessage("E0001"));
+            try {
+                if (wTempFolderPath != null) {
+                    FileUtils.deleteDirectory(wTempFolderPath.toFile());
                 }
+            } catch (Exception e) {
+                addErrorMsg(MessageUtils.getMessage("E0001"));
             }
+            
+            PrimeFaces.current().executeScript("PF('bui').hide();");
         }
 
         return null;
+    }
+
+    public void clear() {
+        clearData();
     }
 
     /**
@@ -346,26 +435,33 @@ public class DbToolBeltController extends BaseController {
         DbTableColumnModel currentItem = context.getApplication().evaluateExpressionGet(context, "#{item}", DbTableColumnModel.class);
 
         if (Objects.nonNull(currentItem)) {
-            currentItem.setDisable_random_otp(true);
+            currentItem.setDisable_random(true);
             currentItem.setDisable_param(true);
-            currentItem.setDisable_ref(StringUtils.isNotBlank(currentItem.getSetting()));
-            currentItem.setDisable_incre(StringUtils.isNotBlank(currentItem.getSetting()));
+            currentItem.setDisable_fixed(StringUtils.isNotBlank(currentItem.getSetting()));
+            currentItem.setDisable_sequence(StringUtils.isNotBlank(currentItem.getSetting()));
 
             switch (currentItem.getSetting()) {
+                case Const.Setting.DEF -> {
+                    currentItem.setFixed(currentItem.getLogical());
+                    currentItem.setRandom(StringUtils.EMPTY);
+                    currentItem.setDisable_random(true);
+                    currentItem.setDisable_fixed(false);
+                    currentItem.setDisable_sequence(false);
+                }
                 case Const.Setting.SEQ -> {
-                    currentItem.setDisable_ref(false);
-                    currentItem.setDisable_incre(false);
+                    currentItem.setDisable_fixed(false);
+                    currentItem.setDisable_sequence(false);
                 }
                 case Const.Setting.FIX -> {
-                    currentItem.setDisable_ref(false);
+                    currentItem.setDisable_fixed(false);
                 }
                 case Const.Setting.RANDOM -> {
                     if (currentItem.isNumeric()) {
-                        currentItem.setDisable_random_otp(true);
+                        currentItem.setDisable_random(true);
                         currentItem.setRandom(Const.Random.NUM);
 
                     } else {
-                        currentItem.setDisable_random_otp(currentItem.isDateTime());
+                        currentItem.setDisable_random(currentItem.isDateTime());
                     }
 
                     currentItem.setDisable_param(Const.Random.NUM.equals(currentItem.getRandom()));
@@ -392,7 +488,23 @@ public class DbToolBeltController extends BaseController {
         }
     }
 
-    public boolean checkData() {
+    private boolean checkData() {
         return true;
+    }
+
+    private void clearData() {
+        columns = new ArrayList<>();
+
+        record = null;
+        tableTarget = "";
+        settingDefault = false;
+        autoFullsize = false;
+        autoFixError = false;
+        autoFillMaxLength = false;
+
+    }
+
+    public boolean getDisplayExec() {
+        return StringUtils.isNotBlank(tableTarget);
     }
 }

@@ -55,4 +55,14 @@ public class MstController extends BaseController {
     public void search() {
 
     }
+    
+    
+    /**
+     * perform click back
+     *
+     * @return
+     */
+    public String back() {
+        return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
+    }
 }

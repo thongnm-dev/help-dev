@@ -38,17 +38,19 @@ public class DbTableColumnModel {
     
     private String param;
     
-    private String ref;
+    private String fixed;
     
-    private BigDecimal incre;
+    private BigDecimal sequence;
     
-    private boolean disable_random_otp = true;
+    private boolean fillMaxlength;
+    
+    private boolean disable_random = true;
     
     private boolean disable_param = true;
     
-    private boolean disable_ref = true;
+    private boolean disable_fixed = true;
     
-    private boolean disable_incre = true;
+    private boolean disable_sequence = true;
     
     public boolean isNumeric() {
         List<String> numerics = Arrays.asList("numeric", "bigint");

@@ -13,14 +13,8 @@
 
     <ui:composition template="/templates/window_base.xhtml">
         <ui:define name="container">
-            <p:panel header="SQL BUILDER" toggleable="true">
-                <p:selectOneButton value="#{sqlBuilderController.tableSql}" id="cbTarget">
-                    <f:selectItems value="#{sqlBuilderController.sqlItems}"/>
-                </p:selectOneButton>
-            </p:panel>
-            <p:spacer height="2" />
             <p:panel header="JOIN">
-                <p:toolbar>
+                <p:toolbar style="background: none; margin-top: 10px; border: none">
                     <p:toolbarGroup>
                         <p:commandButton value="New" icon="pi pi-plus"
                             styleClass="ui-button-success" style="margin-right: .5rem">
@@ -33,16 +27,12 @@
                              scrollable="true">
                     <p:columnGroup type="header">
                         <p:row>
-                            <p:column headerText="SELECT" style="width: 200px;"/>
                             <p:column headerText="TABLE" style="width: 200px;"/>
                             <p:column headerText="ALIAS" style="width: 80px;"/>
                             <p:column headerText="JOIN" style="width: 80px;"/>
                             <p:column headerText="JOIN WHERE"/>
                         </p:row>
                     </p:columnGroup>
-                    <p:column>
-                        <p:commandLink value="Chi tiết"/>
-                    </p:column>
                     <p:column>
                         <p:outputLabel value="#{item.table_name}" />
                     </p:column>
@@ -63,13 +53,15 @@
             </p:panel>            
             <p:spacer height="2" />
             <p:panel header="WHERE">
-                
+                <f:facet name="header">
+                    <p:commandButton value="New"/>
+                </f:facet>
             </p:panel>
         </ui:define>
         <ui:define name="Func">
             <pe:layoutPane position="south" closable="false" resizable="false">
                 <h:panelGrid columns="2" style="padding: 0 10px 0 10px">
-                    <p:commandButton value="#{bundle.BackLabel}" />                    
+                    <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" />                    
                     <p:commandButton value="#{bundle.CreateLabel}" id="btnExec"/>
                 </h:panelGrid>
 

@@ -14,36 +14,37 @@ import org.apache.commons.lang3.StringUtils;
 public enum DataFactory {
     INSTANCE;
 
-    public String perform(Map<String, Object> params) {
+    public String perform(Map<String, Object> param) {
 
-        switch ((String) params.get("setting")) {
-            case Const.Setting.SEQ -> {
-                return performSeqVal(params);
+        String result = StringUtils.EMPTY;
+        switch ((String) param.get("setting")) {
+            case Const.Setting.DEF, Const.Setting.SEQ -> {
+                result = performSeqVal(param);
             }
             case Const.Setting.FIX -> {
-                return performFixedVal(params);
+                result = performFixedVal(param);
             }
             case Const.Setting.RANDOM -> {
-                return performRandomVal(params);
+                result = performRandomVal(param);
             }
             case Const.Setting.RANGE -> {
-                return performRangeVal(params);
+                result = performRangeVal(param);
             }
         }
-        return "";
+        return result;
     }
 
     private String performSeqVal(Map<String, Object> param) {
 
         Pattern wPattern = Pattern.compile("(\\D*)(\\d+)");
-        final String refVal = (String) param.getOrDefault("ref", "");
+        final String fixed = (String) param.getOrDefault("fixed", "");
         int rowNum = (int) param.get("no");
 
-        Matcher wMatcher = wPattern.matcher(refVal);
+        Matcher wMatcher = wPattern.matcher(fixed);
 
-        String matcherRef = wMatcher.matches() ? wMatcher.group(1) : refVal;
+        String matcherRef = wMatcher.matches() ? wMatcher.group(1) : fixed;
 
-        long wNumericValue = wMatcher.matches() ? Long.parseLong(wMatcher.group(2)) : Long.parseLong(refVal);
+        long wNumericValue = wMatcher.matches() ? Long.parseLong(wMatcher.group(2)) : Long.parseLong(fixed);
 
         // the column is numeric
         if (param.containsKey("numeric")) {
@@ -68,17 +69,17 @@ public enum DataFactory {
     }
 
     private String performFixedVal(Map<String, Object> param) {
-        final String refVal = (String) param.getOrDefault("ref", "");
+        final String fixed = (String) param.getOrDefault("fixed", "");
 
         // the column is numeric
         if (param.containsKey("numeric")) {
 
-            return StringUtils.isNumeric(refVal) ? refVal : "0";
+            return StringUtils.isNumeric(fixed) ? fixed : "0";
         }
 
         // the column is character varying
         if (param.containsKey("character")) {
-            return refVal;
+            return fixed;
         }
 
         // The column is date
@@ -86,7 +87,7 @@ public enum DataFactory {
             return DateTimeFactory.INSTANCE.fixed(param);
         }
 
-        return StringUtils.trim(refVal);
+        return StringUtils.trim(fixed);
     }
 
     private String performRandomVal(Map<String, Object> param) {

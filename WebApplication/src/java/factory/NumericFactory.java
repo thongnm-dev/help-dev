@@ -18,9 +18,11 @@ public enum NumericFactory {
 
         final String sequence = (String) param.getOrDefault("sequence", "");
         final int rowNum = (int) param.getOrDefault("no", 1);
-        final int scale = (int) ((Map) param.get("numeric")).getOrDefault("scale", 0);
-        final int precision = (int) ((Map) param.get("numeric")).getOrDefault("precision", 0);
-
+        
+        final Map<String, Object> numeric = (Map) param.get("numeric");
+        final int scale = (int) numeric.getOrDefault("scale", 0);
+        final int precision = (int) numeric.getOrDefault("precision", 5);
+        
         int sequenceCal = 0;
         if (StringUtils.isBlank(sequence)) {
             sequenceCal = rowNum;
@@ -39,7 +41,8 @@ public enum NumericFactory {
 
     public String random(Map<String, Object> param) {
 
-        final int scale = (int) ((Map) param.get("numeric")).getOrDefault("scale", 0);
+        final Map<String, Object> numeric = (Map) param.get("numeric");
+        final int scale = (int) numeric.getOrDefault("scale", 0);
         
         return range("1", maxValue(param), scale);
     }
@@ -72,8 +75,9 @@ public enum NumericFactory {
      */
     private String defaultValue(Map<String, Object> param) {
 
-        final int scale = (int) ((Map) param.get("numeric")).getOrDefault("scale", 0);
-        final int max_length = (int) param.getOrDefault("max_length", 10);
+        final Map<String, Object> numeric = (Map) param.get("numeric");
+        final int scale = (int) numeric.getOrDefault("scale", 0);
+        final int max_length = (int) numeric.getOrDefault("precision", 5);
         if (scale == 0) {
             return StringUtils.repeat("9", max_length);
         }

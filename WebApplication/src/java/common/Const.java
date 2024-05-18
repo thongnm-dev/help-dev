@@ -50,6 +50,8 @@ public class Const {
 
     public static class Setting {
 
+        public static final String DEF = "0";
+        
         public static final String SEQ = "1";
 
         public static final String FIX = "2";
@@ -66,6 +68,8 @@ public class Const {
         public static final String NUM = "2";
 
         public static final String ALPHA_NUM = "3";
+        
+        public static final String FULL_SIZE = "4";
     }
 
     public class DateFormat {

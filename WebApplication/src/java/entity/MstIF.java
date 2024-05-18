@@ -25,9 +25,7 @@ public class MstIF implements Serializable {
 
     @JoinColumn(name = "mst_kbn")
     private String mstKbn;
-    /**
-     * Table physical
-     */
+
     @Column(name = "prm_json", columnDefinition = "jsonb")
     private String prmInfo;
 

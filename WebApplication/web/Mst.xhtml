@@ -74,7 +74,7 @@
         <ui:define name="Func">
             <pe:layoutPane position="south" closable="false" resizable="false">
                 <h:panelGrid style="padding: 0 10px 0 10px">
-                    <p:commandButton value="#{bundle.BackLabel}" />
+                    <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" action="#{mstController.back()}"/>
                 </h:panelGrid>
             </pe:layoutPane>
         </ui:define>

@@ -13,102 +13,111 @@
 
     <ui:composition template="/templates/window_base.xhtml">
         <ui:define name="container">
-            <p:panel header="Thông tin" toggleable="true">
+            <p:panel header="Thông tin" toggleable="true" id="pnlHead">
                 <h:panelGrid columns="2" class="headline_first_rows_left" style="margin-bottom: 10px">
                     <p:outputLabel value="Table target" style="padding: 5px"/>
-                    <p:selectOneMenu value="#{dbToolBeltController.tableTarget}" id="cbTarget">
+                    <p:selectOneMenu value="#{dbToolBeltController.tableTarget}" id="cbTarget" filter="true" filterMatchMode="contains">
                         <f:selectItems value="#{dbToolBeltController.tableItems}"/>
-                        <p:ajax event="change" listener="#{dbToolBeltController.load()}" process="@this" update="pnlDataTable btnExec"/>
+                        <p:ajax event="change" listener="#{dbToolBeltController.load()}" process="@this" update="pnlDataTable btnExec pnlAct"/>
                     </p:selectOneMenu>
                 </h:panelGrid>
             </p:panel>            
             <p:spacer height="2" />
-            <p:blockUI block="body" trigger="cbTarget btnExec btnDownLoad" widgetVar="buiBasic">
-                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
-            </p:blockUI>
             <h:panelGroup id="pnlDataTable">
                 <p:panel id="pnltbl" rendered="#{not dbToolBeltController.disable}">
+                    <f:facet name="header">
+                            <p:selectBooleanCheckbox id="chkDefault" itemLabel="Thiết lập mặc định" value="#{dbToolBeltController.settingDefault}">
+                                <p:ajax event="change" listener="#{dbToolBeltController.handleChangeDefault}" update="tblData msg"/>
+                            </p:selectBooleanCheckbox>
+                            <p:selectBooleanCheckbox itemLabel="Chèn max length" value="#{dbToolBeltController.autoFillMaxLength}">
+                                <p:ajax event="change" listener="#{dbToolBeltController.handleFillMaxLength}" update="tblData msg"/>
+                            </p:selectBooleanCheckbox>
+                            <p:selectBooleanCheckbox itemLabel="Tự động chuyển fullsize" value="#{dbToolBeltController.autoFullsize}"/>
+                            <p:selectBooleanCheckbox itemLabel="Tự động sửa lỗi nhập" value="#{dbToolBeltController.autoFixError}"/>
+                    </f:facet>
+                    <h:panelGrid columns="3" styleClass="headline_first_rows_left" style="margin-bottom: 5px">
+                        <p:outputLabel value="Số record cần tạo" style="padding: 5px"/>
+                        <p:inputNumber id="txtRecord" value="#{dbToolBeltController.record}" minValue="10" maxValue="9999999" decimalPlaces="0"
+                                       required="true"   requiredMessage="Vui lòng nhập số record cần tạo"/> 
+                        <p:message for="txtRecord" />
+                    </h:panelGrid>
                     <p:dataTable id="tblData" var="item" value="#{dbToolBeltController.columns}"
-                                     widgetVar="dataTableList"
-                                     scrollHeight="540"
-                                     scrollable="true">
-                            <p:columnGroup type="header">
-                                <p:row>
-                                    <p:column headerText="Physical" style="width: 180px;"/>
-                                    <p:column headerText="Key" style="width: 40px;"/>
-                                    <p:column headerText="Nullable" style="width: 60px;"/>
-                                    <p:column headerText="Type" style="width: 280px;"/>
-                                    <p:column style="width: 150px;">
-                                        <f:facet name="header">
-                                            <h:panelGrid columns="1" styleClass="none_border">
-                                                <h:outputLabel value="Setting"/>
-                                                <p:selectBooleanCheckbox style="color: red" itemLabel="default" value="#{dbToolBeltController.settingDefault}"/>
-                                            </h:panelGrid>
-                                        </f:facet>
-                                    </p:column>
-                                    <p:column headerText="Random" style="width: 150px;"/>
-                                    <p:column headerText="Param" style="width: 180px;"/>
-                                    <p:column headerText="Reference" style="width: 180px;"/>
-                                    <p:column headerText="Increment" style="width: 180px;"/>
-                                </p:row>
-                            </p:columnGroup>                    
-                            <p:column>
-                                <p:outputLabel value="#{item.physical}" />
-                            </p:column>
-                            <p:column style="text-align: center">
-                                <p:selectBooleanCheckbox value="#{item.pk}" disabled="true"/>
-                            </p:column>
-                            <p:column style="text-align: center">
-                                <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
-                            </p:column>
-                            <p:column>
-                                <p:outputLabel value="#{item.data_type}" />
-                            </p:column>
-                            <p:column>
-                                <p:selectOneMenu value="#{item.setting}" style="width: 150px">
-                                    <f:selectItems value="#{dbToolBeltController.settingItems}"/>
-                                    <p:ajax event="change" listener="#{dbToolBeltController.settingOptsChange}"
-                                            process="@this cbRandom txtParam txtRef txtNum"
-                                            update="cbRandom txtParam txtRef txtNum"/>
-                                </p:selectOneMenu>
-                            </p:column>
-                            <p:column>
-                                <p:selectOneMenu id="cbRandom" value="#{item.random}" style="width: 150px" disabled="#{item.disable_random_otp}">
-                                    <f:selectItems value="#{dbToolBeltController.randomItems}"/>
-                                    <p:ajax event="change" listener="#{dbToolBeltController.randomOptsChange}"
-                                            process="@this txtParam txtRef txtNum"
-                                            update="txtParam txtRef txtNum"/>
-                                </p:selectOneMenu>                        
-                            </p:column>
-                            <p:column>
-                                <p:inputText id="txtParam" value="#{item.param}" disabled="#{item.disable_param}"/>
-                            </p:column>
-                            <p:column>
-                                <p:inputText id="txtRef" value="#{item.ref}" disabled="#{item.disable_ref}"/>
-                            </p:column>
-                            <p:column>
-                                <p:inputNumber id="txtNum" value="#{item.incre}" disabled="#{item.disable_incre}"/>
-                            </p:column>
-                        </p:dataTable>
-                    </p:panel>
-                </h:panelGroup>
-            <p:commandButton style="display: none" id="btnDownLoad" onclick="PrimeFaces.monitorDownload(showBlockUI(), null)" ajax="false">
-                <p:fileDownload value="#{dbToolBeltController.fileDownload}" />
-            </p:commandButton>
+                                 widgetVar="dataTableList"
+                                 scrollHeight="500"
+                                 scrollable="true">
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column headerText="Physical" style="width: 180px;"/>
+                                <p:column headerText="Key" style="width: 40px;"/>
+                                <p:column headerText="Nullable" style="width: 60px;"/>
+                                <p:column headerText="Type" style="width: 280px;"/>
+                                <p:column headerText="Setting" style="width: 150px;"/>
+                                <p:column headerText="Random" style="width: 150px;"/>
+                                <p:column headerText="Param" style="width: 180px;"/>
+                                <p:column headerText="Fixed" style="width: 180px;"/>
+                                <p:column headerText="Sequence" style="width: 180px;"/>
+                                <p:column headerText="Fill" style="width: 40px;"/>
+                            </p:row>
+                        </p:columnGroup>                    
+                        <p:column>
+                            <p:outputLabel value="#{item.physical}" />
+                        </p:column>
+                        <p:column style="text-align: center">
+                            <p:selectBooleanCheckbox value="#{item.pk}" disabled="true" />
+                        </p:column>
+                        <p:column style="text-align: center">
+                            <p:selectBooleanCheckbox value="#{item.nullable}" disabled="true"/>
+                        </p:column>
+                        <p:column>
+                            <p:outputLabel value="#{item.data_type}" />
+                        </p:column>
+                        <p:column>
+                            <p:selectOneMenu value="#{item.setting}" style="width: 150px">
+                                <f:selectItems value="#{dbToolBeltController.settingItems}"/>
+                                <p:ajax event="change" listener="#{dbToolBeltController.settingOptsChange}"
+                                        process="@this cbRandom txtParam txtRef txtNum"
+                                        update="cbRandom txtParam txtRef txtNum"/>
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column>
+                            <p:selectOneMenu id="cbRandom" value="#{item.random}" style="width: 150px" disabled="#{item.disable_random}">
+                                <f:selectItems value="#{dbToolBeltController.randomItems}"/>
+                                <p:ajax event="change" listener="#{dbToolBeltController.randomOptsChange}"
+                                        process="@this txtParam txtRef txtNum"
+                                        update="txtParam txtRef txtNum"/>
+                            </p:selectOneMenu>                        
+                        </p:column>
+                        <p:column>
+                            <p:inputText id="txtParam" value="#{item.param}" disabled="#{item.disable_param}"/>
+                        </p:column>
+                        <p:column>
+                            <p:inputText id="txtRef" value="#{item.fixed}" disabled="#{item.disable_fixed}"/>
+                        </p:column>
+                        <p:column>
+                            <p:inputNumber id="txtNum" value="#{item.sequence}" disabled="#{item.disable_sequence}"/>
+                        </p:column>
+                        <p:column style="text-align: center">
+                            <p:selectBooleanCheckbox value="#{item.fillMaxlength}" disabled="#{not item.character}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:panelGroup>
         </ui:define>
         <ui:define name="Func">
-            <pe:layoutPane position="south" closable="false" resizable="false">
-                <h:panelGrid columns="2" style="padding: 0 10px 0 10px">
-                    <p:commandButton value="#{bundle.BackLabel}" action="#{dbToolBeltController.back()}"/>
-                    <p:commandButton value="#{bundle.CreateLabel}" action="#{dbToolBeltController.exec()}" id="btnExec" disabled="#{dbToolBeltController.disable}">
-                        <p:confirm header="Confirmation" message="Are you sure you want to proceed?" icon="pi pi-exclamation-triangle"/>
-                    </p:commandButton>
-                    
-                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
-                    </p:confirmDialog>
+            <pe:layoutPane position="south" closable="false" resizable="false" >
+                <h:panelGrid columns="3" style="padding: 0 10px 0 10px" id="pnlAct">
+                    <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" action="#{dbToolBeltController.back()}"/>
+                    <p:commandButton icon="#{bundle.FunctionIcon}" value="#{bundle.CreateLabel}" id="btnProc" rendered="#{dbToolBeltController.displayExec}"
+                                     action="#{dbToolBeltController.exec()}" ajax="false">
+                    </p:commandButton>                    
+                    <p:commandButton icon="#{bundle.ClearIcon}" id="btnClear" value="#{bundle.ClearLabel}" rendered="#{dbToolBeltController.displayExec}"
+                                     action="#{dbToolBeltController.clear()}" update="pnlDataTable pnlHead msg"/>
                 </h:panelGrid>
             </pe:layoutPane>
+
+            <p:blockUI block="body" trigger="chkDefault cbTarget" widgetVar="bui" >
+                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
+            </p:blockUI>
         </ui:define>
 
     </ui:composition>

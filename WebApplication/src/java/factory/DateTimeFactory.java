@@ -86,7 +86,7 @@ public enum DateTimeFactory {
     public String sequence(Map<String, Object> param, int pRecordIndex) {
         
         final String datatype = (String) param.getOrDefault("data_type", "date");
-        final String refVal = (String) param.getOrDefault("ref", "");
+        final String fixed = (String) param.getOrDefault("fixed", "");
         final String sequence = (String) param.getOrDefault("sequence", "");
 
         final String noneFormat = StringUtils.contains(datatype, "date") ? Const.DateFormat.None.DATE : Const.DateFormat.None.DATETIME;
@@ -95,8 +95,8 @@ public enum DateTimeFactory {
         int incrementalValue;
         MtDate wDefaultValue;
 
-        if (isValidDate(refVal, noneFormat)) {
-            wDefaultValue = MtDate.of(refVal, noneFormat);
+        if (isValidDate(fixed, noneFormat)) {
+            wDefaultValue = MtDate.of(fixed, noneFormat);
         } else {
             wDefaultValue = MtDate.now();
         }

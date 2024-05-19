@@ -6,13 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Table(name = "t_mst_cd")
+@Table(name = "t_mst_data")
 @Entity
 @Getter
 @Setter
@@ -23,13 +22,12 @@ public class MstIF implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "mst_kbn")
-    private String mstKbn;
+    @Column(name = "table_target")
+    private String table;
 
-    @Column(name = "prm_json", columnDefinition = "jsonb")
-    private String prmInfo;
+    @Column(name = "data_json", columnDefinition = "jsonb")
+    private String dataJson;
 
-    @Column(name = "project_id")
-    private Long projectId;
+    private Long project_id;
 
 }

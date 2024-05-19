@@ -17,7 +17,7 @@ public enum NumericFactory {
     public String sequence(Map<String, Object> param, long numValue) {
 
         final String sequence = (String) param.getOrDefault("sequence", "");
-        final int rowNum = (int) param.getOrDefault("no", 1);
+        final int rowNum = (int) param.getOrDefault("rowNum", 1);
         
         final Map<String, Object> numeric = (Map) param.get("numeric");
         final int scale = (int) numeric.getOrDefault("scale", 0);

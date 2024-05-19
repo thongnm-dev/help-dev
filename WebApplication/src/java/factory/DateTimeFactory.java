@@ -125,7 +125,7 @@ public enum DateTimeFactory {
      * @return 
      */
     public String fixed(Map<String, Object> param) {
-        final String refVal = (String) param.getOrDefault("ref", "");
+        final String refVal = (String) param.getOrDefault("fixed", "");
         final String datatype = (String) param.getOrDefault("data_type", "date");
         
         final String noneFormat = StringUtils.contains(datatype, "date") ? Const.DateFormat.None.DATE : Const.DateFormat.None.DATETIME;

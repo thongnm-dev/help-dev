@@ -1,6 +1,7 @@
 package factory;
 
 import common.Const;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public enum DataFactory {
     INSTANCE;
 
-    public String perform(Map<String, Object> param) {
+    public Object perform(Map<String, Object> param) {
 
         String result = StringUtils.EMPTY;
         switch ((String) param.get("setting")) {
@@ -31,6 +32,10 @@ public enum DataFactory {
                 result = performRangeVal(param);
             }
         }
+        
+        if (param.containsKey("numeric")) {
+            return new BigDecimal(result);
+        }
         return result;
     }
 
@@ -38,13 +43,13 @@ public enum DataFactory {
 
         Pattern wPattern = Pattern.compile("(\\D*)(\\d+)");
         final String fixed = (String) param.getOrDefault("fixed", "");
-        int rowNum = (int) param.get("no");
+        int rowNum = (int) param.get("rowNum");
 
         Matcher wMatcher = wPattern.matcher(fixed);
 
-        String matcherRef = wMatcher.matches() ? wMatcher.group(1) : fixed;
+        String fixedVal = wMatcher.matches() ? wMatcher.group(1) : fixed;
 
-        long wNumericValue = wMatcher.matches() ? Long.parseLong(wMatcher.group(2)) : Long.parseLong(fixed);
+        long wNumericValue = wMatcher.matches() ? Long.parseLong(wMatcher.group(2)) + rowNum : rowNum;
 
         // the column is numeric
         if (param.containsKey("numeric")) {
@@ -53,11 +58,17 @@ public enum DataFactory {
 
         // the column is character varying
         if (param.containsKey("character")) {
-            final int length = (int) ((Map) param.get("character")).getOrDefault("max_length", 0);
+            
+            final Map<String, Object> character = (Map) param.get("character");
 
-            int wIncrementLength = length - StringUtils.length(matcherRef);
-
-            return StringUtils.join(matcherRef, paddingZero((long) (wNumericValue % Math.pow(10, wIncrementLength)), wIncrementLength));
+            String padZero = String.valueOf(wNumericValue);
+            
+            if ((boolean) character.getOrDefault("fill_max_length", false)) {
+                final int max_length = (int) character.getOrDefault("max_length", 255);
+                final int wIncrementLength = max_length - StringUtils.length(fixedVal);
+                padZero = paddingZero((long) (wNumericValue % Math.pow(10, wIncrementLength)), wIncrementLength);
+            }
+            return StringUtils.join(fixedVal, padZero);
         }
 
         // The column is date
@@ -145,7 +156,7 @@ public enum DataFactory {
 
         // the column is character varying
         if (param.containsKey("character")) {
-            return CharacterFactory.INSTANCE.random(param);
+            return wParams.get(ThreadLocalRandom.current().nextInt(wParams.size()));
         }
 
         // The column is date

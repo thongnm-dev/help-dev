@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +37,5 @@ public class FuncIf implements Serializable {
     @Column(name = "func_comment_vn")
     private String funcCommentVn;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private ProjectIF project;
+    private Long project_id;
 }

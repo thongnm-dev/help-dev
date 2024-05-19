@@ -1,5 +1,7 @@
 package controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import common.BaseController;
 import common.Const;
 import common.MessageUtils;
@@ -7,7 +9,7 @@ import common.SelectItemFactory;
 import entity.DbConection;
 import entity.PrmIF;
 import entity.ProjectIF;
-import entity.TableIF;
+import entity.SettingIF;
 import factory.DataFactory;
 import gateway.PrmGateway;
 import gateway.ProjectGateway;
@@ -35,21 +37,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import jp.co.enecom.ma_tanaka.time.MtDate;
 import lombok.Getter;
 import lombok.Setter;
 import model.DbTableColumnModel;
+import model.TableModel;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.persistence.config.EntityManagerProperties;
-import org.primefaces.PrimeFaces;
 import org.primefaces.shaded.commons.io.FilenameUtils;
 
 @Named
@@ -64,7 +68,7 @@ public class DbToolBeltController extends BaseController {
 
     @Getter
     @Setter
-    private BigDecimal record = null;
+    private BigDecimal record = BigDecimal.ZERO;
 
     @Getter
     @Setter
@@ -73,10 +77,6 @@ public class DbToolBeltController extends BaseController {
     @Getter
     @Setter
     private boolean autoFullsize = false;
-
-    @Getter
-    @Setter
-    private boolean autoFixError = false;
 
     @Getter
     @Setter
@@ -137,11 +137,45 @@ public class DbToolBeltController extends BaseController {
 
             tableTarget = this.<String>getScrFromSession(SRC_ID, "pTblPhysical");
 
-            List<TableIF> tables = tableGateway.GetTables(wProjectId).stream().collect(Collectors.toList());
+            ProjectIF projectInfo = projectGateway.GetById(wProjectId);
+            DbConection dbConection = projectInfo.getDbConnection();
 
-            tableItems = SelectItemFactory.INSTANCE.create(tables, true,
-                    (tableIf) -> tableIf.getPhysical(),
-                    (tableIf) -> StringUtils.join(tableIf.getPhysical(), "【", tableIf.getLogical(), "】"));
+            final Map<String, String> properties = new HashMap<String, String>() {
+                {
+                    put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
+                    put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
+                    put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
+                }
+            };
+
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties);
+                    EntityManager manager = emf.createEntityManager()) {
+
+                List<TableModel> tables = new ArrayList<>();
+                tableGateway.GetTables(manager, dbConection.getDbSchema()).stream()
+                        .forEach(wRow -> {
+                            TableModel model = new TableModel();
+                            try {
+                                Map<String, Object> row = new HashMap<>();
+
+                                for (Map.Entry entry : wRow.entrySet()) {
+                                    row.put(((Object) entry.getKey()).toString(), entry.getValue());
+                                }
+
+                                BeanUtils.populate(model, row);
+
+                                model.setProject_id(wProjectId);
+                                tables.add(model);
+                            } catch (Exception e) {
+                                addErrorMsg(MessageUtils.getMessage("E0001"));
+                            }
+                        });
+
+                tableItems = SelectItemFactory.INSTANCE.create(tables, true,
+                        (tableIf) -> tableIf.getPhysical(),
+                        (tableIf) -> StringUtils.join(tableIf.getPhysical(), "【", tableIf.getLogical(), "】"));
+
+            }
 
             List<PrmIF> settings = prmGateway.GetPrms(Const.OPTION_SETTING).stream().collect(Collectors.toList());
 
@@ -177,7 +211,7 @@ public class DbToolBeltController extends BaseController {
             DbConection dbConection = projectInfo.getDbConnection();
             final Map<String, String> properties = new HashMap<String, String>() {
                 {
-                    put(EntityManagerProperties.JDBC_URL, dbConection.getDbHost());
+                    put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
                     put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
                     put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
                 }
@@ -224,6 +258,19 @@ public class DbToolBeltController extends BaseController {
         try {
 
             if (settingDefault) {
+                Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
+
+                Optional<SettingIF> settingOtp = projectGateway.GetColumnHistory(wProjectId);
+
+                settingOtp.ifPresent(setting -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        columnHistorySetting = mapper.readValue(setting.getSetting(), Map.class);
+                    } catch (JsonProcessingException e) {
+                        addErrorMsg(e.getMessage());
+                    }
+                });
+
                 int maxLengthCheck = Integer.parseInt(columnFullSizeSetting.getOrDefault("max_length_default", "31").toString());
                 for (DbTableColumnModel columnModel : columns) {
                     columnModel.setSetting(Const.Setting.RANDOM);
@@ -234,22 +281,18 @@ public class DbToolBeltController extends BaseController {
                         columnModel.setDisable_param(true);
                         columnModel.setDisable_fixed(true);
                         columnModel.setDisable_sequence(true);
-                    } else if (columnModel.isDateTime()) {
+                    } else if (columnModel.isDateTime() && !columnHistorySetting.containsKey(columnModel.getPhysical())) {
                         columnModel.setRandom(Const.Random.NUM);
                         columnModel.setDisable_random(true);
                         columnModel.setDisable_param(false);
                         columnModel.setDisable_fixed(true);
                         columnModel.setDisable_sequence(true);
-                    } else {
+                    } else if (!columnHistorySetting.containsKey(columnModel.getPhysical())) {
                         columnModel.setRandom(Const.Random.ALPHA_NUM);
                         columnModel.setDisable_random(false);
                         columnModel.setDisable_param(false);
                         columnModel.setDisable_fixed(true);
                         columnModel.setDisable_sequence(true);
-
-                        if (columnHistorySetting.containsKey(columnModel.getPhysical())) {
-
-                        }
 
                         if (StringUtils.isNotBlank(columnModel.getMax_length())) {
                             if (Integer.parseInt(columnModel.getMax_length()) > maxLengthCheck) {
@@ -261,6 +304,13 @@ public class DbToolBeltController extends BaseController {
                                 columnModel.setRandom(StringUtils.EMPTY);
                             }
                         }
+                    } else if (columnHistorySetting.containsKey(columnModel.getPhysical())) {
+                        columnModel.setSetting(Const.Setting.FIX);
+                        columnModel.setDisable_random(true);
+                        columnModel.setDisable_param(true);
+                        columnModel.setDisable_fixed(false);
+                        columnModel.setFixed((String) columnHistorySetting.getOrDefault(columnModel.getPhysical(), StringUtils.EMPTY));
+
                     }
                 }
             }
@@ -314,15 +364,15 @@ public class DbToolBeltController extends BaseController {
                 Path csvFilePath = Paths.get(wTempFolderPath.toString(), wFilename);
                 try (Writer writer = Files.newBufferedWriter(csvFilePath);) {
 
-                    CSVPrinter wPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvHeader));
+                    CSVPrinter wPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvHeader).withQuoteMode(QuoteMode.NON_NUMERIC));
 
                     for (int i = wStart; i < wEnd; i++) {
-                        final int index = i;
-                        List<String> wDataGenerated = new ArrayList<>();
+                        final int index = i + 1;
+                        List<Object> wDataGenerated = new ArrayList<>();
 
                         for (DbTableColumnModel model : columns) {
                             Map<String, Object> params = new HashMap<>();
-                            params.put("no", index);
+                            params.put("rowNum", index);
                             params.put("column_name", model.getPhysical());
                             params.put("data_type", model.getData_type());
                             params.put("setting", model.getSetting());
@@ -414,8 +464,6 @@ public class DbToolBeltController extends BaseController {
             } catch (Exception e) {
                 addErrorMsg(MessageUtils.getMessage("E0001"));
             }
-            
-            PrimeFaces.current().executeScript("PF('bui').hide();");
         }
 
         return null;
@@ -499,7 +547,6 @@ public class DbToolBeltController extends BaseController {
         tableTarget = "";
         settingDefault = false;
         autoFullsize = false;
-        autoFixError = false;
         autoFillMaxLength = false;
 
     }

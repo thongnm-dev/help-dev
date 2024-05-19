@@ -10,15 +10,6 @@ function blockUI() {
     return PF('bui');
 }
 
-$(function () {
-    $("form").submit(function () {
-        if (typeof blockUI() !== 'undefined') {
-            showBlockUI();
-        }
-        return true;
-    });
-});
-
 function copy() {
    var r = document.getElementById("txtcopy");
     r.focus();

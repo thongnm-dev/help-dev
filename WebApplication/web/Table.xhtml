@@ -59,10 +59,10 @@
                     </p:toolbarGroup>
                 </p:toolbar>
             </p:panel>
-            
+
             <p:contextMenu for="tblData" selectionMode="single" >
                 <p:menuitem value="Tạo dữ liệu csv" icon="pi pi-file-export" action="#{tableController.ShowForm('DBTOOLS')}"/>
-                <p:menuitem value="Compare" title="Layout và DDL" icon="pi pi-code"/>
+                <p:menuitem value="Compare" title="Layout và DDL" icon="pi pi-code" actionListener="#{tableController.compare()}" />
                 <p:menuitem value="View" icon="pi pi-eye" action="#{tableController.ShowForm('TABLE_COL')}"/>
             </p:contextMenu>
         </ui:define>
@@ -73,6 +73,33 @@
                                      action="#{tableController.back()}" onclick="showBlockUI();" oncomplete="hideBlockUI();"/>
                 </h:panelGrid>
             </pe:layoutPane>
+
+            <p:dialog widgetVar="dialogResult" dynamic="true" modal="true" width="700" height="680">
+                <h:panelGrid columns="2">
+                    <p:panel header="From layout">
+                        <p:dataTable var="layout" value="#{tableController.columnsLayout}"
+                                     rowStyleClass="#{layout.notMatched ? 'error_row' : ''}">
+                            <p:column headerText="Column Name">
+                                <p:outputLabel value="#{layout.columnName}"/>
+                            </p:column>
+                            <p:column headerText="Data Type">
+                                <p:outputLabel value="#{layout.dataType}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                    <p:panel header="From DDL">
+                        <p:dataTable var="ddl" value="#{tableController.columnsDDL}"
+                                     rowStyleClass="#{ddl.notMatched ? 'error_row' : ''}">
+                            <p:column headerText="Column Name">
+                                <p:outputLabel value="#{ddl.columnName}"/>
+                            </p:column>
+                            <p:column headerText="Data Type">
+                                <p:outputLabel value="#{ddl.dataType}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                </h:panelGrid>
+            </p:dialog>
         </ui:define>
     </ui:composition>
 </html>

@@ -18,7 +18,8 @@
                     <p:outputLabel value="Table target" style="padding: 5px"/>
                     <p:selectOneMenu value="#{dbToolBeltController.tableTarget}" id="cbTarget" filter="true" filterMatchMode="contains">
                         <f:selectItems value="#{dbToolBeltController.tableItems}"/>
-                        <p:ajax event="change" listener="#{dbToolBeltController.load()}" process="@this" update="pnlDataTable btnExec pnlAct"/>
+                        <p:ajax event="change" listener="#{dbToolBeltController.load()}" onstart="PF('bui').show()" oncomplete="PF('bui').hide()"
+                                process="@this" update="pnlDataTable btnExec pnlAct"/>
                     </p:selectOneMenu>
                 </h:panelGrid>
             </p:panel>            
@@ -27,13 +28,16 @@
                 <p:panel id="pnltbl" rendered="#{not dbToolBeltController.disable}">
                     <f:facet name="header">
                             <p:selectBooleanCheckbox id="chkDefault" itemLabel="Thiết lập mặc định" value="#{dbToolBeltController.settingDefault}">
-                                <p:ajax event="change" listener="#{dbToolBeltController.handleChangeDefault}" update="tblData msg"/>
+                                <p:ajax event="change" listener="#{dbToolBeltController.handleChangeDefault}" 
+                                        onstart="PF('bui').show()" oncomplete="PF('bui').hide()"
+                                        update="tblData msg"/>
                             </p:selectBooleanCheckbox>
                             <p:selectBooleanCheckbox itemLabel="Chèn max length" value="#{dbToolBeltController.autoFillMaxLength}">
-                                <p:ajax event="change" listener="#{dbToolBeltController.handleFillMaxLength}" update="tblData msg"/>
+                                <p:ajax event="change" listener="#{dbToolBeltController.handleFillMaxLength}" 
+                                        onstart="PF('bui').show()" oncomplete="PF('bui').hide()"
+                                        update="tblData msg"/>
                             </p:selectBooleanCheckbox>
                             <p:selectBooleanCheckbox itemLabel="Tự động chuyển fullsize" value="#{dbToolBeltController.autoFullsize}"/>
-                            <p:selectBooleanCheckbox itemLabel="Tự động sửa lỗi nhập" value="#{dbToolBeltController.autoFixError}"/>
                     </f:facet>
                     <h:panelGrid columns="3" styleClass="headline_first_rows_left" style="margin-bottom: 5px">
                         <p:outputLabel value="Số record cần tạo" style="padding: 5px"/>
@@ -107,17 +111,14 @@
             <pe:layoutPane position="south" closable="false" resizable="false" >
                 <h:panelGrid columns="3" style="padding: 0 10px 0 10px" id="pnlAct">
                     <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" action="#{dbToolBeltController.back()}"/>
-                    <p:commandButton icon="#{bundle.FunctionIcon}" value="#{bundle.CreateLabel}" id="btnProc" rendered="#{dbToolBeltController.displayExec}"
+                    <p:commandButton icon="#{bundle.FunctionIcon}" value="#{bundle.CreateLabel}" 
+                                     id="btnProc" rendered="#{dbToolBeltController.displayExec}"
                                      action="#{dbToolBeltController.exec()}" ajax="false">
                     </p:commandButton>                    
                     <p:commandButton icon="#{bundle.ClearIcon}" id="btnClear" value="#{bundle.ClearLabel}" rendered="#{dbToolBeltController.displayExec}"
                                      action="#{dbToolBeltController.clear()}" update="pnlDataTable pnlHead msg"/>
                 </h:panelGrid>
             </pe:layoutPane>
-
-            <p:blockUI block="body" trigger="chkDefault cbTarget" widgetVar="bui" >
-                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
-            </p:blockUI>
         </ui:define>
 
     </ui:composition>

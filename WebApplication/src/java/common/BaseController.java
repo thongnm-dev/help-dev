@@ -122,9 +122,9 @@ public class BaseController implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         UIViewRoot root = context.getViewRoot();
         //datatableのコンポーネントを作成
-        UIData dataTable = (UIData) root.findComponent(":testForm:" + tableId);
+        UIData dataTable = (UIData) root.findComponent(":mainForm:" + tableId);
         //datatable内のコンポーネントIDを作成
-        String setId = ":testForm:" + tableId + ":" + componentId;
+        String setId = ":mainForm:" + tableId + ":" + componentId;
         //探索する行を設定
         dataTable.setRowIndex(rowIndex);
         //指定されたindexが探索可能な行かチェック

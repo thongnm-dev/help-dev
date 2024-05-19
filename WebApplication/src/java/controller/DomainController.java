@@ -128,7 +128,7 @@ public class DomainController extends BaseController {
                 DbConection dbConection = projectInfo.getDbConnection();
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbHost());
+                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
                         put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
                         put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
                     }

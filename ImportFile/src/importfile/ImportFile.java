@@ -1,5 +1,6 @@
 package importfile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,17 +33,43 @@ import org.eclipse.persistence.config.EntityManagerProperties;
 public class ImportFile {
 
     public static void main(String[] args) throws Exception {
-        Map<String, Object> map = null;
         
-        final Map<String, Object> check = Optional.ofNullable(map).orElse(new HashMap<>());
-        
-        String ss ="" ;
     }
+    
+    public static void setting(String[] args) throws Exception {
+        List<Map<String, Object>> target = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("table_name", "kukm_hnyif");
+        map.put("table_logical", "【共通】汎用情報");
+        
+        Map<String, Object> column = new HashMap<>();
+        column.put("hny_skb_cd", "汎用識別コード");
+        column.put("hny_skb_name", "汎用識別名称");
+        column.put("hny_cdt", "汎用コード値");
+        column.put("hny_skb_hssg_kbn", "汎用識別編集制御区分");
+        column.put("hnyif_1", "汎用情報1");
+        column.put("hnyif_2", "汎用情報2");
+        column.put("hnyif_3", "汎用情報3");
+        column.put("hnyif_4", "汎用情報4");
+        column.put("hnyif_5", "汎用情報5");
+        column.put("nkord", "並替順序");
+        column.put("syu_kbn", "使用区分");
+        
+        map.put("columns", column);
+        target.add(map);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        
+        String jsonStr = mapper.writeValueAsString(map);
+        
+        System.out.println(jsonStr);
+    }
+
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-    public static void main2(String[] args) throws Exception {
+    private static void tableLayout(String[] args) throws Exception {
         Stream<Path> paths = Files.walk(Paths.get(args[0]));
         final List<String> workSheetIngore = Arrays.asList("変更履歴", "ER図");
 

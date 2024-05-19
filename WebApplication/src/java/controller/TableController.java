@@ -25,6 +25,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import model.TableColumnModel;
 import model.TableModel;
@@ -34,6 +35,7 @@ import org.eclipse.persistence.config.EntityManagerProperties;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.modelmapper.config.Configuration;
+import org.primefaces.PrimeFaces;
 
 @Named
 @SessionScoped
@@ -63,10 +65,10 @@ public class TableController extends BaseController {
 
     @Getter
     private SelectItem[] targeItems = null;
-    
+
     @Getter
     private SelectItem[] sqlItems = null;
-    
+
     @Getter
     @Setter
     private List<String> selectedSqls = new ArrayList<>();
@@ -89,6 +91,12 @@ public class TableController extends BaseController {
 
     @Inject
     private PrmGateway prmGateway;
+        
+    @Getter
+    private List<ColumnModel> columnsLayout = null;
+    
+    @Getter
+    private List<ColumnModel> columnsDDL = null;
 
     /**
      *
@@ -109,9 +117,9 @@ public class TableController extends BaseController {
 
     /**
      *
-     * @return @throws Exception
+     * @return
      */
-    public String initColumn() throws Exception {
+    public String initColumn() {
 
         tables = new ArrayList<>();
         if (!initDataColumn()) {
@@ -127,7 +135,7 @@ public class TableController extends BaseController {
      *
      * @return @throws Exception
      */
-    private boolean initDataTable() throws Exception {
+    private boolean initDataTable() {
 
         try {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
@@ -146,7 +154,7 @@ public class TableController extends BaseController {
             targeItems = SelectItemFactory.INSTANCE.create(targets, false,
                     (row) -> row.getPrmId(),
                     (row) -> row.getPrmValue());
-            
+
             List<PrmIF> sqls = prmGateway.GetPrms(Const.OPTION_SQL).stream().collect(Collectors.toList());
 
             sqlItems = SelectItemFactory.INSTANCE.create(sqls, false,
@@ -182,7 +190,7 @@ public class TableController extends BaseController {
                 DbConection dbConection = projectInfo.getDbConnection();
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbHost());
+                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
                         put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
                         put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
                     }
@@ -240,7 +248,7 @@ public class TableController extends BaseController {
      *
      * @return @throws Exception
      */
-    private boolean initDataColumn() throws Exception {
+    private boolean initDataColumn() {
 
         try {
             Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
@@ -264,7 +272,7 @@ public class TableController extends BaseController {
                 DbConection dbConection = projectInfo.getDbConnection();
                 final Map<String, String> properties = new HashMap<String, String>() {
                     {
-                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbHost());
+                        put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
                         put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
                         put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
                     }
@@ -292,7 +300,6 @@ public class TableController extends BaseController {
                             });
 
                 }
-
             }
 
         } catch (Exception ex) {
@@ -302,28 +309,117 @@ public class TableController extends BaseController {
         return true;
     }
 
+    /**
+     * back
+     *
+     * @return
+     */
     public String back() {
         return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
     }
-    
+
+    /**
+     * exec
+     */
     public void exec() {
-        
+
     }
-    
+
+    /**
+     * ShowForm
+     *
+     * @param url
+     * @return
+     */
     public String ShowForm(String url) {
-        
+
         Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
         String wScrUrl = Const.SCR_INFO.get(url);
 
         setScrIFToSession(url, "pProjectId", wProjectId);
-        setScrIFToSession(url, "pTblPhysical", selection.getPhysical());
         setScrIFToSession(url, "pTarget", target);
         setScrIFToSession(url, "pTableId", selection.getId());
         setScrIFToSession(url, "pTblPhysical", selection.getPhysical());
         setScrIFToSession(url, "pTblLogical", selection.getLogical());
 
         setBackScreenIdToSession(url, Const.SCR_INFO.get(SRC_TABLE));
-        
+
         return redirect(wScrUrl);
+    }
+
+    public void compare() {
+        try {
+            Long wProjectId = this.<Long>getScrFromSession(SRC_TABLE_COL, "pProjectId");
+
+            Map<String, Object> fromLayout = new LinkedHashMap<>();
+            tableGateway.GetTableColumns(wProjectId, selection.getPhysical())
+                    .stream()
+                    .forEach(wRow -> {
+                        fromLayout.put(wRow.getPhysical(), wRow.getDataType());
+                    });
+
+            ProjectIF projectInfo = projectGateway.GetById(wProjectId);
+            DbConection dbConection = projectInfo.getDbConnection();
+            final Map<String, String> properties = new HashMap<String, String>() {
+                {
+                    put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
+                    put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
+                    put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
+                }
+            };
+
+            Map<String, Object> fromDDL = new LinkedHashMap<>();
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties);
+                    EntityManager manager = emf.createEntityManager()) {
+
+                tableGateway.GetTableColumns(manager, dbConection.getDbSchema(), selection.getPhysical())
+                        .stream()
+                        .forEach(wRow -> {
+                            fromDDL.put((String) wRow.get("physical"), wRow.get("data_type"));
+                        });
+            }
+            
+            columnsLayout = new ArrayList<>();
+            columnsDDL = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : fromLayout.entrySet()) {
+                String dataTypeFromDDL = (String) fromDDL.getOrDefault(entry.getKey(), StringUtils.EMPTY);
+                String dataTypeFromLayout = (String) entry.getValue();
+                if (StringUtils.contains((String) entry.getValue(), "varchar")) {
+                    dataTypeFromLayout = StringUtils.replace(dataTypeFromLayout, "varchar", "character varying");
+                }
+                
+                ColumnModel modelLayout = new ColumnModel() {
+                    {
+                        setColumnName(entry.getKey());
+                        setDataType((String) entry.getValue());
+                    }
+                };
+                
+                ColumnModel modelDDL = new ColumnModel() {
+                    {
+                        setColumnName(entry.getKey());
+                        setDataType((String) entry.getValue());
+                    }
+                };
+                modelLayout.setNotMatched(!StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
+                modelDDL.setNotMatched(!StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
+                columnsLayout.add(modelLayout);
+                columnsDDL.add(modelDDL);                
+            }
+            
+            if (columnsLayout.stream().anyMatch(row -> row.isNotMatched())) {
+                PrimeFaces.current().executeScript("PF('dialogResult').show()");
+            }
+        } catch (Exception e) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+        }
+    }
+    
+    @Getter
+    @Setter
+    public class ColumnModel {
+        private boolean notMatched; 
+        private String columnName;
+        private String dataType;
     }
 }

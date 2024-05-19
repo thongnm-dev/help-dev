@@ -18,3 +18,7 @@ table.none_border tbody > tr , table.none_border  tbody > tr > td {
 table.none_border tbody tr:nth-child(n - 1) {
     background-color: #b6d3fa !important;
 }
+
+.error_row {
+    background-color: violet;
+}

@@ -1,7 +1,6 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,10 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -51,15 +48,6 @@ public class ProjectIF implements Serializable {
     @Column(name = "project_descript")
     private String projectDescript;
 
-    @Column(name ="start_date")
-    private Date startDate;
-
-    @Column(name ="end_date")
-    private Date endDate;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
-    private DbConection dbConnection;
-    
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "project")
-    private Collection<Setting> settings;
+    private DbConection dbConnection;    
 }

@@ -62,9 +62,12 @@ public class TableGateway extends BaseGateway {
         CriteriaQuery<TableColumnIF> criteriaQuery = criteriaBuilder.createQuery(TableColumnIF.class);
         Root<TableColumnIF> userRoot = criteriaQuery.from(TableColumnIF.class);
 
+        //where
         criteriaQuery.where(criteriaBuilder.equal(userRoot.get("projectId"), projectId));
-
         criteriaQuery.where(criteriaBuilder.equal(userRoot.get("tableName"), tableName));
+        
+        // order by
+        criteriaQuery.orderBy(criteriaBuilder.asc(userRoot.get("physical")));
 
         return Query(criteriaQuery).getResultList();
     }
@@ -91,7 +94,13 @@ public class TableGateway extends BaseGateway {
         wSqlstr.append("        , (CASE WHEN c.data_type = 'character varying' ");
         wSqlstr.append("                    THEN c.data_type || '(' || c.character_maximum_length || ')' ");
         wSqlstr.append("                WHEN c.data_type = 'numeric' ");
-        wSqlstr.append("                    THEN c.data_type ");
+        wSqlstr.append("                    THEN ");
+        wSqlstr.append("                         (CASE WHEN c.numeric_precision IS NOT NULL AND c.numeric_scale IS NOT NULL ");
+        wSqlstr.append("                                THEN c.data_type || '(' || c.numeric_precision || ',' || c.numeric_scale || ')'");
+        wSqlstr.append("                              WHEN c.numeric_precision IS NOT NULL AND c.numeric_scale IS NULL ");
+        wSqlstr.append("                                THEN c.data_type || '(' || c.numeric_precision || ')'");
+        wSqlstr.append("                              ELSE c.data_type ");
+        wSqlstr.append("                         END::character varying)");
         wSqlstr.append("                ELSE c.data_type ");
         wSqlstr.append("           END)::character varying AS data_type ");
         wSqlstr.append("        , (CASE WHEN kcu.column_name IS NOT NULL THEN true ELSE false END)::boolean AS pk ");
@@ -117,9 +126,8 @@ public class TableGateway extends BaseGateway {
         wSqlstr.append("    and t.schema_name = ?nspname ");
         wSqlstr.append("    and t.table_name = ?tblname ");
         wSqlstr.append(" order by ");
-        wSqlstr.append("     t.schema_name, ");
-        wSqlstr.append("     t.table_name, ");
-        wSqlstr.append("     c.ordinal_position ");
+        wSqlstr.append("     c.column_name ");
+//        wSqlstr.append("    ,c.ordinal_position ");
 
         Query wQuery = manager.createNativeQuery(wSqlstr.toString());
         wQuery.setHint(QueryHints.RESULT_TYPE, ResultType.Map);

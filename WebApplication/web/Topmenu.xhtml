@@ -12,37 +12,9 @@
 
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="body">
-            <p:panel header="Thông tin chung" toggleable="true" rendered="false">
-                <h:panelGrid  style="text-align: center" >
-                    <p:row>
-                        <p:column>
-                            <p:commandButton value="Danh sách chức năng của hệ thống" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('URS_GUIDE')}"/>
-                        </p:column>
-                        <p:column>
-                            <p:commandButton value="Hướng dẫn phát triển dự án"  style="margin: 0 10px 0 0" action="#{topMenuController.openForm('TRAINING')}"/>
-                        </p:column>
-                        <p:column>
-                            <p:commandButton value="Các lỗi thường gặp" action="#{topMenuController.openForm('BUG')}"/>
-                        </p:column>
-                    </p:row>
-                </h:panelGrid>
-            </p:panel>
-            <p:spacer height="5"/>
-            <p:panel header="Công cụ hỗ trợ" toggleable="true" rendered="false">
-                <h:panelGrid columns="3" style="margin-bottom: 5px">
-                    <p:row>
-                        <p:column>
-                            <p:commandButton value="Chức năng thường dùng" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('FUNC')}"/>
-                        </p:column>
-                        <p:column>
-                            <p:commandButton value="Từ điển thường dùng" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('DIC')}"/>
-                        </p:column>
-                        <p:column>
-                            <p:commandButton value="Sinh dữ liệu động"  action="#{topMenuController.openForm('DBTOOLS')}"/>
-                        </p:column>
-                    </p:row>
-                </h:panelGrid>
-                <p:panel header="Phát triển" toggleable="true" rendered="false">
+            <p:panel header="Công cụ hỗ trợ" toggleable="true">
+
+                <p:panel header="Phát triển">
                     <h:panelGrid columns="3" >
                         <p:row>
                             <p:column >
@@ -68,7 +40,7 @@
             </p:panel>
             <p:spacer height="5"/>
             <p:panel header="Dự án" toggleable="true">
-                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}"
+                <p:commandButton icon="#{bundle.RefreshIcon}" value="#{bundle.RefreshLabel}" onclick="showBlockUI();" oncomplete="hideBlockUI();"
                                  actionListener="#{topMenuController.refresh()}" update="msg tblData">                    
                 </p:commandButton>
 
@@ -89,7 +61,6 @@
                     </p:column>
                     <p:column style="text-align: center">
                         <p:menuButton id="btnFunc" value="Chọn chức năng">
-                            <p:menuitem value="Working Rule" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'RULE')}"/>
                             <p:menuitem value="Table Layout" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'TABLE')}"/>
                             <p:menuitem value="Domain" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'DOMAIN')}"/>
                             <p:menuitem value="Quản lý master" icon="#{bundle.FunctionIcon}" action="#{topMenuController.showForm(item, 'MST')}"/>

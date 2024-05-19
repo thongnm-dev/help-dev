@@ -24,14 +24,8 @@ public class DbConection implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "db_host")
-    private String dbHost;
-
-    @Column(name = "db_port")
-    private String dbPort;
-
-    @Column(name = "db_target")
-    private String dbTarget;
+    @Column(name = "db_url")
+    private String dbUrl;
 
     @Column(name = "db_schema")
     private String dbSchema;

@@ -118,23 +118,27 @@ public enum CharacterFactory {
         final int max_length = (int) character.getOrDefault("max_length", 255);
 
         StringBuilder wText = new StringBuilder();
+        StringBuilder wConvText = new StringBuilder();
         int wCharacterSetLength = pCharacterSet.length;
 
         int wConvSize = 0;
         try {
             for (int i = 0; i < max_length; i++) {
+                wText.append(pCharacterSet[ThreadLocalRandom.current().nextInt(wCharacterSetLength)]);
+            }
+            for (int i = 0; i < StringUtils.length(wText.toString()); i++) {
                 String c = wText.toString().substring(i, i + 1);
                 wConvSize += c.getBytes("MS932").length;
                 if (wConvSize > max_length) {
-                    return wText.toString();
+                    return wConvText.toString();
                 }
 
-                wText.append(pCharacterSet[ThreadLocalRandom.current().nextInt(wCharacterSetLength)]);
+                wConvText.append(c);
             }
         } catch (Exception ex) {
             return StringUtils.EMPTY;
         }
-        return wText.toString();
+        return wConvText.toString();
     }
 
 }

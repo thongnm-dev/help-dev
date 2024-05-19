@@ -74,7 +74,7 @@
                 </h:panelGrid>
             </pe:layoutPane>
 
-            <p:dialog widgetVar="dialogResult" dynamic="true" modal="true" width="700" height="680">
+            <p:dialog widgetVar="dialogResult" dynamic="true" modal="true" width="700" height="680" appendTo="@(body)">
                 <h:panelGrid columns="2">
                     <p:panel header="From layout">
                         <p:dataTable var="layout" value="#{tableController.columnsLayout}"

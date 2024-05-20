@@ -355,7 +355,7 @@ public class TableController extends BaseController {
             tableGateway.GetTableColumns(wProjectId, selection.getPhysical())
                     .stream()
                     .forEach(wRow -> {
-                        fromLayout.put(wRow.getPhysical(), wRow.getDataType());
+                        fromLayout.put(wRow.getPhysical(), wRow.getData_type());
                     });
 
             ProjectIF projectInfo = projectGateway.GetById(wProjectId);

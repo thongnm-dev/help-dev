@@ -95,9 +95,9 @@ public class TableGateway extends BaseGateway {
         wSqlstr.append("                    THEN c.data_type || '(' || c.character_maximum_length || ')' ");
         wSqlstr.append("                WHEN c.data_type = 'numeric' ");
         wSqlstr.append("                    THEN ");
-        wSqlstr.append("                         (CASE WHEN c.numeric_precision IS NOT NULL AND c.numeric_scale IS NOT NULL ");
+        wSqlstr.append("                         (CASE WHEN c.numeric_precision IS NOT NULL AND c.numeric_scale IS NOT NULL AND c.numeric_scale <> 0 ");
         wSqlstr.append("                                THEN c.data_type || '(' || c.numeric_precision || ',' || c.numeric_scale || ')'");
-        wSqlstr.append("                              WHEN c.numeric_precision IS NOT NULL AND c.numeric_scale IS NULL ");
+        wSqlstr.append("                              WHEN c.numeric_precision IS NOT NULL AND (c.numeric_scale IS NULL OR c.numeric_scale = 0 ) ");
         wSqlstr.append("                                THEN c.data_type || '(' || c.numeric_precision || ')'");
         wSqlstr.append("                              ELSE c.data_type ");
         wSqlstr.append("                         END::character varying)");

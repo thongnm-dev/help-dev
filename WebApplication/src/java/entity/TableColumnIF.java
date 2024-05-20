@@ -31,7 +31,7 @@ public class TableColumnIF implements Serializable {
      *
      */
     @Column(name = "data_type")
-    private String dataType;
+    private String data_type;
 
     /**
      *

@@ -32,16 +32,19 @@
 
             <p:panel id="pnlData">
                 <p:dataTable var="item" value="#{mstController.items}" id="tblData" rowIndexVar="idx"
-                             paginator="true" lazy="true" widgetVar="dataTableList" 
+                             paginator="true" widgetVar="dataTableList" 
+                             tableStyleClass="table_header"
                              paginatorPosition="top"
                              scrollable="true"
+                             scrollHeight="475"
                              first="#{mstController.pageFirstItem}"
                              rows="#{mstController.rowsPerPage}"
                              rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"
                              paginatorTemplate="#{bundle.PaginatorTemplate}" 
                              currentPageReportTemplate="#{bundle.CurrentPageReportTemplate}">
-                    <p:columns value="#{mstController.columns}" var="column" filterBy="#{item.get(column.property)}" filterMatchMode="contains">
-                        <f:facet name="header">
+                    <p:columns style="text-align: #{column.align}" value="#{mstController.columns}" 
+                               var="column" filterBy="#{item.get(column.property)}" filterMatchMode="contains">
+                        <f:facet name="header" rendered="#{column.display}">
                             <h:outputText value="#{column.headerText}" />
                         </f:facet>
                         <h:outputText value="#{item.getOrDefault(column.property, '')}" />

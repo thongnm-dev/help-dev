@@ -46,6 +46,7 @@
 
                 <p:panel style="margin-top: 10px">
                     <p:dataTable var="item"
+                                 tableStyleClass="table_header"
                                  value="#{topMenuController.projects}" id="tblData" rowIndexVar="idx" widgetVar="dataTableList" >
                     <p:ajax event="page" />
                     <p:columnGroup type="header">

@@ -28,7 +28,9 @@
             <p:spacer height="2" />
             <p:panel id="pnlDataTable">
                 <p:dataTable var="item" value="#{tableController.tables}" id="tblData" rowIndexVar="idx"
+                             tableStyleClass="table_header" 
                              rowKey="#{item.physical}" selectionMode="single" rowSelector="none"
+                             rowStyleClass="#{idx % 2 == 0 ? '' : 'datatable-odd'}"
                              selection="#{tableController.selection}"
                              paginator="true" widgetVar="dataTableList"
                              paginatorPosition="top"
@@ -75,7 +77,7 @@
                 </h:panelGrid>
             </pe:layoutPane>
 
-            <p:dialog header="Thông tin" widgetVar="dialogResult" dynamic="true" modal="true" width="900" height="780" appendTo="@(body)">
+            <p:dialog header="Thông tin" widgetVar="dialogResult" dynamic="true" modal="true" width="1000" height="800" appendTo="@(body)">
                 <h:panelGrid columns="2">
                     <p:panel header="From layout">
                         <p:dataTable var="layout" value="#{tableController.columnsLayout}"

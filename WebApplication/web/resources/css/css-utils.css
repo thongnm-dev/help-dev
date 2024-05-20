@@ -22,3 +22,21 @@ table.none_border tbody tr:nth-child(n - 1) {
 .error_row {
     background: pink !important;
 }
+
+.datatable-odd {
+    background: #d1ecf1 !important;
+}
+
+.table_header thead tr th {
+    background: #6c7ae0 !important;
+    color: white !important;
+    font-size: 20px !important;
+}
+.ui-datatable-scrollable .ui-paginator {
+    background: none !important;
+    color: #2e6e9e !important;
+}
+
+.ui-datatable-scrollable-header {
+    background: #6c7ae0 !important;
+}

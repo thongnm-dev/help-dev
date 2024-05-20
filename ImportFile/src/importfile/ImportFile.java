@@ -19,8 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -32,17 +36,35 @@ import org.eclipse.persistence.config.EntityManagerProperties;
  */
 public class ImportFile {
 
+    private static final Map<String, String> properties = new HashMap<String, String>() {
+        {
+            put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
+            put(EntityManagerProperties.JDBC_USER, "beuser");
+            put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
+            put("eclipselink.jdbc.bind-parameters", "false");
+        }
+    };
+
+    private static final List<String> workSheetIngore = Arrays.asList("変更履歴", "ER図");
+
     public static void main(String[] args) throws Exception {
-        
+
+        if (StringUtils.equals("1", args[0])) {
+            tableLayout(args);
+        } else if (StringUtils.equals("2", args[0])) {
+            setting(args);
+        }
     }
-    
+
     public static void setting(String[] args) throws Exception {
-        List<Map<String, Object>> target = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
+
+        Map<String, Object> map = new LinkedMap<>();
         map.put("table_name", "kukm_hnyif");
         map.put("table_logical", "【共通】汎用情報");
+
+        List<ColumnModel> columns = new ArrayList<>();
         
-        Map<String, Object> column = new HashMap<>();
+        Map<String, String> column = new LinkedMap<>();
         column.put("hny_skb_cd", "汎用識別コード");
         column.put("hny_skb_name", "汎用識別名称");
         column.put("hny_cdt", "汎用コード値");
@@ -55,13 +77,25 @@ public class ImportFile {
         column.put("nkord", "並替順序");
         column.put("syu_kbn", "使用区分");
         
-        map.put("columns", column);
-        target.add(map);
-        
+        int idx = 1;
+        for(Map.Entry<String, String> entry : column.entrySet()) {
+            
+            ColumnModel model = new ColumnModel();
+            model.rowNum = idx;
+            model.align = Arrays.asList("hny_skb_cd", "hny_cdt").contains(entry.getKey()) ? "center" : "left";
+            model.display = Arrays.asList("hny_skb_cd", "hny_cdt", "hnyif_1", "hnyif_2", "hnyif_3", "hnyif_4", "hnyif_5", "syu_kbn").contains(entry.getKey());
+            model.property = entry.getKey();
+            model.headerText = entry.getValue();
+            columns.add(model);
+            idx++;
+        }
+
+        map.put("columns", columns);
+
         ObjectMapper mapper = new ObjectMapper();
-        
+
         String jsonStr = mapper.writeValueAsString(map);
-        
+
         System.out.println(jsonStr);
     }
 
@@ -70,8 +104,7 @@ public class ImportFile {
      * @throws java.lang.Exception
      */
     private static void tableLayout(String[] args) throws Exception {
-        Stream<Path> paths = Files.walk(Paths.get(args[0]));
-        final List<String> workSheetIngore = Arrays.asList("変更履歴", "ER図");
+        Stream<Path> paths = Files.walk(Paths.get(args[1]));
 
         /**
          * Row index of table logical
@@ -88,17 +121,7 @@ public class ImportFile {
          */
         final int ROW_INDEX_TABLE_COLUMN_ST = 8;
 
-        final Map<String, String> properties = new HashMap<String, String>() {
-                    {
-                        put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
-                        put(EntityManagerProperties.JDBC_USER, "beuser");
-                        put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
-                        put("eclipselink.jdbc.bind-parameters", "false");
-                    }
-                };
-        
-        try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("ImportFilePU", properties); 
-                EntityManager manager = emf.createEntityManager()) {
+        try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("ImportFilePU", properties); EntityManager manager = emf.createEntityManager()) {
 
             paths.filter(Files::isRegularFile)
                     .filter(file -> "xlsx".equals(FilenameUtils.getExtension(file.toString())))
@@ -117,7 +140,6 @@ public class ImportFile {
                                     List<Map<String, Object>> columns = new ArrayList<>();
                                     Iterator<Row> rowIterator = sheet.iterator();
 
-                                    sheet.getMergedRegions();
                                     String wTbl = sheet.getRow(ROW_INDEX_TABLE_NAME).getCell(3).getStringCellValue();
                                     String wTblCmt = sheet.getRow(ROW_INDEX_TABLE_CMT).getCell(3).getStringCellValue();
 
@@ -171,11 +193,11 @@ public class ImportFile {
                         } catch (Exception ex) {
                             manager.getTransaction().rollback();
                         }
-                        
+
                     });
         }
     }
-    
+
     private static void InsertTable(EntityManager manager, Map<String, Object> table) {
         StringBuilder wSqlstr = new StringBuilder();
 
@@ -201,10 +223,10 @@ public class ImportFile {
     }
 
     private static void InsertTableColumns(EntityManager manager, Collection<Map<String, Object>> tableColumns) {
-        
+
         tableColumns.forEach(tableCol -> {
-    
-             StringBuilder wSqlstr = new StringBuilder();
+
+            StringBuilder wSqlstr = new StringBuilder();
 
             wSqlstr.append(" INSERT INTO t_table_dtl ");
             wSqlstr.append("  ( ");
@@ -236,5 +258,97 @@ public class ImportFile {
 
             query.executeUpdate();
         });
+    }
+
+    private static void importMstData(String[] args) throws Exception {
+        Stream<Path> paths = Files.walk(Paths.get(args[1]));
+        ObjectMapper mapper = new ObjectMapper();
+        try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("ImportFilePU", properties); 
+                EntityManager manager = emf.createEntityManager()) {
+            paths.filter(Files::isRegularFile)
+                    .filter(file -> "xlsx".equals(FilenameUtils.getExtension(file.toString())))
+                    .forEach(file -> {
+                        System.out.println(file.toString());
+                        try (InputStream fileIs = new FileInputStream(file.toFile()); XSSFWorkbook workbook = new XSSFWorkbook(fileIs)) {
+                            
+                            manager.getTransaction().begin();
+
+                            Iterator<Sheet> workSheet = workbook.sheetIterator();
+
+                            while (workSheet.hasNext()) {
+                                Sheet sheet = workSheet.next();
+
+                                if (!workSheetIngore.contains(sheet.getSheetName())) {
+                                    for (Row row : sheet) {
+                                        if (row.getRowNum() < 4) {
+                                            continue;
+                                        }
+
+                                        if (row.getCell(0) == null) {
+                                            break;
+                                        }
+
+                                        for (int i = 1; i <= 11; i++) {
+                                            row.getCell(i).setCellType(CellType.STRING);
+                                        }
+                                        
+                                        Map<String, Object> mstData = new HashMap<>();
+                                        mstData.put("hny_skb_cd", row.getCell(1).getStringCellValue());
+                                        mstData.put("hny_skb_name", row.getCell(2).getStringCellValue());
+                                        mstData.put("hny_cdt", row.getCell(3).getStringCellValue());
+                                        mstData.put("hny_skb_hssg_kbn", row.getCell(4).getStringCellValue());
+                                        mstData.put("hnyif_1", row.getCell(5).getStringCellValue());
+                                        mstData.put("hnyif_2", row.getCell(6).getStringCellValue());
+                                        mstData.put("hnyif_3", row.getCell(7).getStringCellValue());
+                                        mstData.put("hnyif_4", row.getCell(8).getStringCellValue());
+                                        mstData.put("hnyif_5", row.getCell(9).getStringCellValue());
+                                        mstData.put("nkord", row.getCell(10).getStringCellValue());
+                                        mstData.put("syu_kbn", row.getCell(11).getStringCellValue());
+                                        
+                                        String jsonStr = mapper.writeValueAsString(mstData);
+                                        System.out.println(jsonStr);
+                                        
+                                        InsertMstTable(manager, jsonStr);
+                                    }
+                                }
+
+                            }
+                            manager.getTransaction().commit();
+                        } catch (Exception ex) {
+                            manager.getTransaction().rollback();
+                        }
+                    });
+        }
+    }
+
+    private static void InsertMstTable(EntityManager manager, String json) {
+        StringBuilder wSqlstr = new StringBuilder();
+
+        wSqlstr.append(" INSERT INTO t_mst_data ");
+        wSqlstr.append("  ( ");
+        wSqlstr.append("     table_target ");
+        wSqlstr.append("    ,data_json ");
+        wSqlstr.append("    ,project_id ");
+        wSqlstr.append("  ) VALUES ");
+        wSqlstr.append(" (");
+        wSqlstr.append("     'kukm_hnyif' ");
+        wSqlstr.append("    ,?data_json ");
+        wSqlstr.append("    ,1 ");
+        wSqlstr.append("  );");
+
+        Query query = manager.createNativeQuery(wSqlstr.toString());
+        query.setParameter("data_json", json);
+
+        query.executeUpdate();
+    }
+    
+    @Getter
+    @Setter
+    public static class ColumnModel {
+        private int rowNum;
+        private String headerText;
+        private String property;
+        private boolean display;
+        private String align;
     }
 }

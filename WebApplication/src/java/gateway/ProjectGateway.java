@@ -125,9 +125,9 @@ public class ProjectGateway extends BaseGateway {
         CriteriaBuilder criteriaBuilder = CriteriaBuilder();
 
         CriteriaQuery<MstIF> criteriaQuery = criteriaBuilder.createQuery(MstIF.class);
-        Root<MstIF> userRoot = criteriaQuery.from(MstIF.class);
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get("project_id"), projectId));
-        criteriaQuery.where(criteriaBuilder.equal(userRoot.get("table_target"), target));        
+        Root<MstIF> root = criteriaQuery.from(MstIF.class);
+        criteriaQuery.where(criteriaBuilder.equal(root.get("project_id"), projectId));
+        criteriaQuery.where(criteriaBuilder.equal(root.get("table"), target));        
 
         return Query(criteriaQuery).getResultList();
     }

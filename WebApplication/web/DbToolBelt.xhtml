@@ -45,7 +45,9 @@
                                        required="true"   requiredMessage="Vui lòng nhập số record cần tạo"/> 
                         <p:message for="txtRecord" />
                     </h:panelGrid>
-                    <p:dataTable id="tblData" var="item" value="#{dbToolBeltController.columns}"
+                    <p:dataTable id="tblData" var="item" value="#{dbToolBeltController.columns}" rowIndexVar="idx"
+                                 rowStyleClass="#{idx % 2 == 0 ? '' : 'datatable-odd'}"
+                                 tableStyleClass="table_header"
                                  widgetVar="dataTableList"
                                  scrollHeight="500"
                                  scrollable="true">

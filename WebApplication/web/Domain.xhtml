@@ -30,7 +30,9 @@
             </p:panel>
             <p:spacer height="2" />
             <p:panel>
-                <p:dataTable var="item" id="tblData" value="#{domainController.domains}"
+                <p:dataTable var="item" id="tblData" value="#{domainController.domains}" rowIndexVar="idx"
+                             rowStyleClass="#{idx % 2 == 0 ? '' : 'datatable-odd'}"
+                             tableStyleClass="table_header"
                              paginator="true" widgetVar="dataTableList"
                              paginatorPosition="top"
                              scrollable="true"

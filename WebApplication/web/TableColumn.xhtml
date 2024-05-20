@@ -23,6 +23,8 @@
         <ui:define name="container">
             <p:panel id="pnlDataTable">
                 <p:dataTable var="item" value="#{tableController.columns}" id="tblData" rowIndexVar="idx"
+                             rowStyleClass="#{idx % 2 == 0 ? '' : 'datatable-odd'}"
+                             tableStyleClass="table_header"
                              widgetVar="dataTableList" 
                              scrollHeight="560"
                              scrollable="true">

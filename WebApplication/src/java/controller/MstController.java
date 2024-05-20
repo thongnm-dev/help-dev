@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.persistence.config.EntityManagerProperties;
 
@@ -40,7 +41,7 @@ public class MstController extends BaseController {
 
     @Getter
     @Setter
-    private String targetDataType = Const.Data.FILE;
+    private String targetDataType = StringUtils.EMPTY;
 
     @Getter
     private SelectItem[] targeItems = null;
@@ -93,6 +94,11 @@ public class MstController extends BaseController {
             Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
             List<PrmIF> targets = prmGateway.GetPrms(Const.OPTION_MST_DATA).stream().collect(Collectors.toList());
 
+            columns = new ArrayList<>();
+            items = new ArrayList<>();
+            target = Const.Data.FILE;
+            targetDataType = StringUtils.EMPTY;
+            
             targeItems = SelectItemFactory.INSTANCE.create(targets, false,
                     (row) -> row.getPrmId(),
                     (row) -> row.getPrmValue());
@@ -129,27 +135,25 @@ public class MstController extends BaseController {
     public void handleTargetChange() {
         try {
 
+            columns = new ArrayList<>();
+            items = new ArrayList<>();
+            
+            if (StringUtils.isBlank(targetDataType)) {
+                return;
+            }
+            
             ObjectMapper mapper = new ObjectMapper();
             Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
             String result = projectGateway.GetSettings(wProjectId, Const.Data.TABLE_MST, targetDataType);
 
-            Map<String, Object> columnInfo = mapper.readValue(result, Map.class);
-
-            columns = new ArrayList<>();
-            for (Map.Entry entry : columnInfo.entrySet()) {
-                ColumnModel column = new ColumnModel();
-                column.setHeaderText((String) entry.getValue());
-                column.setProperty((String) entry.getKey());
-                columns.add(column);
-            }
-            
-            items = new ArrayList<>();
+            columns = mapper.readValue(result, List.class);
+                        
             if (StringUtils.equals(target, Const.Data.FILE)) {
                 projectGateway.GetMstDatas(wProjectId, targetDataType)
                         .stream()
                         .forEach(row -> {                            
                             try {
-                                items.add(mapper.readValue(row.getDataJson(), Map.class));
+                                items.add(mapper.readValue(row.getDataJson(), LinkedMap.class));
                             } catch (JsonProcessingException e) {
                                 
                             }
@@ -192,7 +196,11 @@ public class MstController extends BaseController {
     @Getter
     @Setter
     public class ColumnModel {
+        private int rowNum;
         private String headerText;
         private String property;
+        private boolean display;
+        private String align;
     }
+    
 }

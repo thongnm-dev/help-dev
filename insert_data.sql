@@ -13,7 +13,8 @@ insert into public.t_prm(id,prm_order,prm_cd,prm_id,prm_value) values
   , (12,1,'OPTION_MST_DATA','0','File')
   , (13,2,'OPTION_MST_DATA','1','Database');
 
-
+insert into public.t_project(project_cd,project_descript,project_name) values 
+    ('ESS','ESS','ESS');
 
 insert into public.t_connection(db_url,db_schema,db_pass,db_usr,project_id) values
     ('jdbc:postgresql://localhost:5432/ESS','essnewmoela','mowner01','mowner01',1);

@@ -31,12 +31,18 @@
             <p:spacer height="2" />
 
             <p:panel id="pnlData">
+                <p:toolbar style="background: none; margin-top: 10px; border: none">
+                    <p:toolbarGroup align="left">
+                        <p:commandButton id="btnRefresh" icon="pi pi-refresh" update="msg tblData" actionListener="#{mstController.handleTargetChange()}"/>                        
+                    </p:toolbarGroup>
+                </p:toolbar>
+                <p:spacer height="2" />
                 <p:dataTable var="item" value="#{mstController.items}" id="tblData" rowIndexVar="idx"
                              paginator="true" widgetVar="dataTableList" 
                              tableStyleClass="table_header"
                              paginatorPosition="top"
                              scrollable="true"
-                             scrollHeight="475"
+                             scrollHeight="400"
                              first="#{mstController.pageFirstItem}"
                              rows="#{mstController.rowsPerPage}"
                              rowsPerPageTemplate="#{bundle.RowsPerPageTemplate}"

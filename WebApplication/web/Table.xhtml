@@ -79,7 +79,7 @@
                 <h:panelGrid columns="2">
                     <p:panel header="From layout">
                         <p:dataTable var="layout" value="#{tableController.columnsLayout}"
-                                     rowStyleClass="#{layout.notMatched ? 'error_row' : ''}">
+                                     rowStyleClass="#{layout.matched ? '' : 'error_row'}">
                             <p:column headerText="Column Name">
                                 <p:outputLabel value="#{layout.columnName}"/>
                             </p:column>
@@ -90,7 +90,7 @@
                     </p:panel>
                     <p:panel header="From DDL">
                         <p:dataTable var="ddl" value="#{tableController.columnsDDL}"
-                                     rowStyleClass="#{ddl.notMatched ? 'error_row' : ''}">
+                                     rowStyleClass="#{ddl.matched ? '' : 'error_row'}">
                             <p:column headerText="Column Name">
                                 <p:outputLabel value="#{ddl.columnName}"/>
                             </p:column>

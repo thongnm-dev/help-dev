@@ -384,30 +384,28 @@ public class TableController extends BaseController {
             for (Map.Entry<String, Object> entry : fromLayout.entrySet()) {
                 String dataTypeFromDDL = (String) fromDDL.getOrDefault(entry.getKey(), StringUtils.EMPTY);
                 String dataTypeFromLayout = (String) entry.getValue();
+
                 if (StringUtils.contains((String) entry.getValue(), "varchar")) {
                     dataTypeFromLayout = StringUtils.replace(dataTypeFromLayout, "varchar", "character varying");
+                } else if (StringUtils.equals(dataTypeFromDDL, "timestamp without time zone")) {
+                    dataTypeFromDDL = "timestamp";
                 }
                 
-                ColumnModel modelLayout = new ColumnModel() {
-                    {
-                        setColumnName(entry.getKey());
-                        setDataType((String) entry.getValue());
-                    }
-                };
+                ColumnModel modelLayout = new ColumnModel();
+                modelLayout.setColumnName(entry.getKey());
+                modelLayout.setDataType(dataTypeFromLayout);
+                modelLayout.setMatched(StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
                 
-                ColumnModel modelDDL = new ColumnModel() {
-                    {
-                        setColumnName(entry.getKey());
-                        setDataType((String) entry.getValue());
-                    }
-                };
-                modelLayout.setNotMatched(!StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
-                modelDDL.setNotMatched(!StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
+                ColumnModel modelDDL = new ColumnModel();
+                modelDDL.setColumnName(entry.getKey());
+                modelDDL.setDataType(dataTypeFromDDL);
+                modelDDL.setMatched(StringUtils.equals(dataTypeFromDDL, dataTypeFromLayout));
+                
                 columnsLayout.add(modelLayout);
                 columnsDDL.add(modelDDL);                
             }
             
-            if (columnsLayout.stream().anyMatch(row -> row.isNotMatched())) {
+            if (columnsLayout.stream().anyMatch(row -> !row.isMatched())) {
                 PrimeFaces.current().executeScript("PF('dialogResult').show()");
             }
         } catch (Exception e) {
@@ -418,7 +416,7 @@ public class TableController extends BaseController {
     @Getter
     @Setter
     public class ColumnModel {
-        private boolean notMatched; 
+        private boolean matched; 
         private String columnName;
         private String dataType;
     }

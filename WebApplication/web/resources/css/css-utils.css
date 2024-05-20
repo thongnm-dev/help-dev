@@ -20,5 +20,5 @@ table.none_border tbody tr:nth-child(n - 1) {
 }
 
 .error_row {
-    background-color: violet;
+    background: pink !important;
 }

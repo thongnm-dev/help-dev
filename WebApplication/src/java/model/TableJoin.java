@@ -7,20 +7,15 @@ import lombok.Setter;
 @Setter
 public class TableJoin {
 
-    private String table_name;
+    private String physical;
 
-    private String join;
+    private String logical;
 
     private String alias;
 
+    private String join;
+
     private String where;
-
-    @Getter
-    @Setter
-    public class Item {
-
-        private String physical;
-
-        private String logical;
-    }
+    
+    private boolean isfrom;
 }

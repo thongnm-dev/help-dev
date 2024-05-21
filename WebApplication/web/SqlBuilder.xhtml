@@ -14,48 +14,31 @@
     <ui:composition template="/templates/window_base.xhtml">
         <ui:define name="container">
             <p:panel header="JOIN">
-                <p:toolbar style="background: none; margin-top: 10px; border: none">
-                    <p:toolbarGroup>
-                        <p:commandButton value="New" icon="pi pi-plus"
-                            styleClass="ui-button-success" style="margin-right: .5rem">
+                <f:facet name="header">
+                    <p:commandButton value="New" icon="pi pi-plus">
                         </p:commandButton>
-                    </p:toolbarGroup>
-                </p:toolbar>
-                <p:spacer height="1" />
-                <p:dataTable var="item" value="#{sqlBuilderController.tableJoins}" widgetVar="dataTableList"
-                             scrollHeight="540"
-                             scrollable="true">
-                    <p:columnGroup type="header">
-                        <p:row>
-                            <p:column headerText="TABLE" style="width: 200px;"/>
-                            <p:column headerText="ALIAS" style="width: 80px;"/>
-                            <p:column headerText="JOIN" style="width: 80px;"/>
-                            <p:column headerText="JOIN WHERE"/>
-                        </p:row>
-                    </p:columnGroup>
-                    <p:column>
-                        <p:outputLabel value="#{item.table_name}" />
-                    </p:column>
-                    <p:column>
-                        <p:outputLabel value="#{item.alias}" />
-                    </p:column>
-                    <p:column>
-                        <p:selectOneRadio value="#{item.join}">
-                            <f:selectItem itemValue="INNER JOIN" itemLabel="INNER" />
-                            <f:selectItem itemValue="LEFT OUTER JOIN" itemLabel="LEFT" />
-                        </p:selectOneRadio>
-                    </p:column>
-                    <p:column>
-                        <p:commandButton icon="#{bundle.SelectIcon}"/>
-                        <p:inputTextarea value="#{item.where}" disabled="true"/>
-                    </p:column>
-                </p:dataTable>
-            </p:panel>            
+                </f:facet>
+                <p:panel id="pnlJoins">
+                    
+                </p:panel>
+            </p:panel>
             <p:spacer height="2" />
             <p:panel header="WHERE">
                 <f:facet name="header">
-                    <p:commandButton value="New"/>
+                    <p:commandButton icon="pi pi-plus" value="New"/>
                 </f:facet>
+                <p:panel id="pnlWhere">
+                    
+                </p:panel>
+            </p:panel>
+            <p:spacer height="2" />
+            <p:panel header="WHERE">
+                <f:facet name="header">
+                    <p:commandButton icon="pi pi-plus" value="New"/>
+                </f:facet>
+                <p:panel id="pnlSelect">
+                    
+                </p:panel>
             </p:panel>
         </ui:define>
         <ui:define name="Func">
@@ -64,10 +47,6 @@
                     <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" />                    
                     <p:commandButton value="#{bundle.CreateLabel}" id="btnExec"/>
                 </h:panelGrid>
-
-                <p:blockUI block="body" trigger="btnExec" widgetVar="buiBasic">
-                    <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
-                </p:blockUI>
             </pe:layoutPane>
         </ui:define>
 

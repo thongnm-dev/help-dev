@@ -13,32 +13,64 @@
 
     <ui:composition template="/templates/window_base.xhtml">
         <ui:define name="container">
-            <p:panel header="JOIN">
+            <style type="text/css">
+                .ui-panel-titlebar {
+                    padding-left: 0px !important;
+                    padding-right: 10px !important;
+                    background: none;
+                }
+            </style>
+            <p:panel id="join" toggleable="true">
                 <f:facet name="header">
-                    <p:commandButton value="New" icon="pi pi-plus">
-                        </p:commandButton>
+                    <p:outputLabel value="JOINS" style="padding: 8px; color: #2e6e9e"/>
+                    <p:spacer height="1" width="10"/>
+                    <p:commandButton icon="pi pi-plus" actionListener="#{sqlBuilderController.addNewJoin}" update="dtbJoins msg"/>
                 </f:facet>
                 <p:panel id="pnlJoins">
-                    
+                    <p:dataTable var="item" value="#{sqlBuilderController.tableJoins}" 
+                                 rowIndexVar="idx" id="dtbJoins">
+                        <p:column headerText="TABLE" width="220">
+                            <p:selectOneMenu value="#{item.tableItem}" style="width: 200px" 
+                                             filter="true" filterMatchMode="contains">
+                                <f:selectItem itemValue="" itemLabel="Chưa chọn" />
+                                <f:selectItems value="#{sqlBuilderController.tableItems}" var="table" 
+                                               itemLabel="#{table.logical}" itemValue="#{table.physical}"/>>
+                            </p:selectOneMenu>
+                        </p:column>
+                        <p:column headerText="JOIN" width="100">
+                            <p:selectOneMenu value="#{item.join}" rendered="#{not item.isfrom}">
+                                <f:selectItem itemValue="INNER JOIN" itemLabel="INNER" />
+                                <f:selectItem itemValue="LEFT OUTER" itemLabel="LEFT" />
+                            </p:selectOneMenu>                            
+                        </p:column>
+                        <p:column headerText="ALIAS" width="80">
+                            <p:inputText readonly="true" value="t" style="width: 65px" />
+                        </p:column>
+                        <p:column headerText="Condition">
+                            
+                        </p:column>
+                    </p:dataTable>
                 </p:panel>
             </p:panel>
             <p:spacer height="2" />
-            <p:panel header="WHERE">
+            <p:panel id="where" toggleable="true">
                 <f:facet name="header">
+                    <p:outputLabel value="WHERE" style="padding: 8px; color: #2e6e9e"/>
+                    <p:spacer height="1" width="10"/>
                     <p:commandButton icon="pi pi-plus" value="New"/>
                 </f:facet>
                 <p:panel id="pnlWhere">
-                    
+
                 </p:panel>
             </p:panel>
             <p:spacer height="2" />
-            <p:panel header="WHERE">
+            <p:panel id="select" toggleable="true">
                 <f:facet name="header">
+                    <p:outputLabel value="SELECT" style="padding: 8px; color: #2e6e9e"/>
+                    <p:spacer height="1" width="10"/>
                     <p:commandButton icon="pi pi-plus" value="New"/>
                 </f:facet>
-                <p:panel id="pnlSelect">
-                    
-                </p:panel>
+
             </p:panel>
         </ui:define>
         <ui:define name="Func">

@@ -405,9 +405,8 @@ public class TableController extends BaseController {
                 columnsDDL.add(modelDDL);                
             }
             
-            if (columnsLayout.stream().anyMatch(row -> !row.isMatched())) {
-                PrimeFaces.current().executeScript("PF('dialogResult').show()");
-            }
+            PrimeFaces.current().executeScript("PF('dialogResult').show()");
+            
         } catch (Exception e) {
             addErrorMsg(MessageUtils.getMessage("E0001"));
         }

@@ -3,19 +3,24 @@ package controller;
 import common.BaseController;
 import common.Const;
 import common.MessageUtils;
-import common.SelectItemFactory;
-import entity.PrmIF;
-import gateway.PrmGateway;
+import entity.DbConection;
+import entity.ProjectIF;
+import gateway.ProjectGateway;
+import gateway.TableGateway;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.model.SelectItem;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import model.TableJoin;
+import org.eclipse.persistence.config.EntityManagerProperties;
 
 @Named
 @SessionScoped
@@ -24,17 +29,22 @@ public class SqlBuilderController extends BaseController {
     private final String SRC_ID = "SQLBUILDER";
 
     @Getter
-    private SelectItem[] sqlItems = null;
-
+    private List<TableItem> tableItems = null;
+    
     @Getter
     @Setter
     private List<String> tableSql;
-
-    @Inject
-    private PrmGateway prmGateway;
     
     @Getter
-    private List<TableJoin> tableJoins;
+    private List<TableJoin> tableJoins = new ArrayList<>();
+
+    
+    @Inject
+    private ProjectGateway projectGateway;
+    
+    @Inject
+    private TableGateway tableGateway;
+
 
     public String init() throws Exception {
 
@@ -58,19 +68,51 @@ public class SqlBuilderController extends BaseController {
         try {
 
             tableSql = new ArrayList<>();
+            
+            tableJoins = new ArrayList<>();
+            
+            tableJoins.add(new TableJoin() {{setIsfrom(true);}});
+            
+            Long wProjectId = this.<Long>getScrFromSession(SRC_ID, "pProjectId");
 
-            List<PrmIF> sqls = prmGateway.GetPrms(Const.OPTION_SQL).stream().collect(Collectors.toList());
+            ProjectIF projectInfo = projectGateway.GetById(wProjectId);
+            DbConection dbConection = projectInfo.getDbConnection();
 
-            sqlItems = SelectItemFactory.INSTANCE.create(sqls, false,
-                    (row) -> row.getPrmId(),
-                    (row) -> row.getPrmValue());
+            final Map<String, String> properties = new HashMap<String, String>() {
+                {
+                    put(EntityManagerProperties.JDBC_URL, dbConection.getDbUrl());
+                    put(EntityManagerProperties.JDBC_USER, dbConection.getDbUsr());
+                    put(EntityManagerProperties.JDBC_PASSWORD, dbConection.getDbPass());
+                }
+            };
 
+            tableItems = new ArrayList<>();
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties);
+                    EntityManager manager = emf.createEntityManager()) {
+
+                tableGateway.GetTables(manager, dbConection.getDbSchema()).stream()
+                        .forEach(wRow -> {
+                            TableItem model = new TableItem();
+                            model.setPhysical((String) wRow.get("physical"));
+                            model.setLogical((String) wRow.get("logical"));
+                            tableItems.add(model);
+                        });
+            }
+            
             return true;
         } catch (Exception ex) {
             return false;
         }
     }
 
+    public void addNewJoin() {
+        
+        try {
+            tableJoins.add(new TableJoin());
+        } catch (Exception e) {
+            addErrorMsg(MessageUtils.getMessage("E0001"));
+        }
+    }
     /**
      * perform click back
      *
@@ -78,5 +120,13 @@ public class SqlBuilderController extends BaseController {
      */
     public String back() {
         return redirect(getBackScr((String) getSession().get(C_SESSION_KEY_SCR)));
+    }
+    
+    
+    @Getter
+    @Setter
+    public class TableItem {
+        private String physical;
+        private String logical;
     }
 }

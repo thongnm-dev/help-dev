@@ -1,5 +1,6 @@
 package model;
 
+import controller.SqlBuilderController;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,9 +8,7 @@ import lombok.Setter;
 @Setter
 public class TableJoin {
 
-    private String physical;
-
-    private String logical;
+    private SqlBuilderController.TableItem tableItem;
 
     private String alias;
 

@@ -217,7 +217,8 @@ public class DbToolBeltController extends BaseController {
                 }
             };
 
-            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); EntityManager manager = emf.createEntityManager()) {
+            try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenceUnit", properties); 
+                    EntityManager manager = emf.createEntityManager()) {
 
                 // Retrieve all tables
                 tableGateway.GetTableColumns(manager, dbConection.getDbSchema(), tableTarget).stream()

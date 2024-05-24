@@ -1,6 +1,7 @@
 package model;
 
-import controller.SqlBuilderController;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,13 +9,11 @@ import lombok.Setter;
 @Setter
 public class TableJoin {
 
-    private SqlBuilderController.TableItem tableItem;
+    private Item join;
 
     private String alias;
-
-    private String join;
-
-    private String where;
     
-    private boolean isfrom;
+    private List<Item> columns = new ArrayList<>();
+        
+    private List<ConditionModel> whereJoins = new ArrayList<>();
 }

@@ -67,7 +67,7 @@ public class TableGateway extends BaseGateway {
         criteriaQuery.where(criteriaBuilder.equal(userRoot.get("tableName"), tableName));
         
         // order by
-        criteriaQuery.orderBy(criteriaBuilder.asc(userRoot.get("physical")));
+        criteriaQuery.orderBy(criteriaBuilder.desc(userRoot.get("pk")));
 
         return Query(criteriaQuery).getResultList();
     }
@@ -127,7 +127,7 @@ public class TableGateway extends BaseGateway {
         wSqlstr.append("    and t.table_name = ?tblname ");
         wSqlstr.append(" order by ");
         wSqlstr.append("     c.column_name ");
-//        wSqlstr.append("    ,c.ordinal_position ");
+        wSqlstr.append("    ,c.ordinal_position ");
 
         Query wQuery = manager.createNativeQuery(wSqlstr.toString());
         wQuery.setHint(QueryHints.RESULT_TYPE, ResultType.Map);

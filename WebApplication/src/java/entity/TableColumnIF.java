@@ -42,8 +42,8 @@ public class TableColumnIF implements Serializable {
     /**
      *
      */
-    @Column(name = "is_fk")
-    private boolean isPrimaryKey;
+    @Column(name = "pk")
+    private boolean pk;
 
     /**
      *

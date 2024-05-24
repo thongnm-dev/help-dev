@@ -5,7 +5,8 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:pe="http://primefaces.org/ui/extensions"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="jakarta.tags.core">
 
     <f:metadata>
         <f:viewAction action="#{sqlBuilderController.init()}" />
@@ -19,35 +20,94 @@
                     padding-right: 10px !important;
                     background: none;
                 }
+                .subtable {
+                    border-style: unset;
+                    border-color: window;
+                    width: 600px !important;
+                    table-layout: auto !important;
+                }
             </style>
             <p:panel id="join" toggleable="true">
                 <f:facet name="header">
                     <p:outputLabel value="JOINS" style="padding: 8px; color: #2e6e9e"/>
                     <p:spacer height="1" width="10"/>
-                    <p:commandButton icon="pi pi-plus" actionListener="#{sqlBuilderController.addNewJoin}" update="dtbJoins msg"/>
+                    <p:commandButton icon="#{bundle.CreateIcon}" actionListener="#{sqlBuilderController.addNewJoin}" update="dtbJoins msg"/>
                 </f:facet>
                 <p:panel id="pnlJoins">
-                    <p:dataTable var="item" value="#{sqlBuilderController.tableJoins}" 
-                                 rowIndexVar="idx" id="dtbJoins">
+                    <h:panelGrid columns="3" style="margin-bottom: 5px">
+                        <p:selectOneMenu value="#{sqlBuilderController.tableTarget}" style="width: 200px" var="table" converter="#{table}"
+                                         filter="true" filterMatchMode="contains" >
+                            <f:selectItem itemValue="" itemLabel="Chưa chọn" />
+                            <f:selectItems value="#{sqlBuilderController.tableItems}"
+                                           var="t" itemLabel="#{t.physical}" itemValue="#{t}"/>
+                            <p:column>
+                                <f:facet name="header">
+                                    <p:outputLabel value="Physical" />
+                                </f:facet>
+                                <p:outputLabel value="#{table.physical}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <p:outputLabel value="Logical" />
+                                </f:facet>
+                                <p:outputLabel value="#{table.logical}" />
+                            </p:column>
+                            <p:ajax event="change" listener="#{sqlBuilderController.loadColumns}" partialSubmit="true" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="ALIAS" style="padding: 8px; color: #2e6e9e"/>
+                        <p:inputText readonly="true" style="width: 65px" />
+                    </h:panelGrid>
+                    <p:dataTable var="item" value="#{sqlBuilderController.tableJoins}" rowIndexVar="idx" id="dtbJoins" >
                         <p:column headerText="TABLE" width="220">
-                            <p:selectOneMenu value="#{item.tableItem}" style="width: 200px" 
+                            <p:selectOneMenu value="#{item.join}" style="width: 200px" var="column"
                                              filter="true" filterMatchMode="contains">
                                 <f:selectItem itemValue="" itemLabel="Chưa chọn" />
-                                <f:selectItems value="#{sqlBuilderController.tableItems}" var="table" 
-                                               itemLabel="#{table.logical}" itemValue="#{table.physical}"/>>
+                                <f:selectItems value="#{sqlBuilderController.tableItems}" var="t" itemLabel="#{t.physical}" itemValue="#{t}" />
+                                <p:column>
+                                    <f:facet name="header">
+                                        <p:outputLabel value="Physical" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{column.physical}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <p:outputLabel value="Logical" />
+                                    </f:facet>
+                                    <p:outputLabel value="#{column.logical}" />
+                                </p:column>
+                                <p:ajax event="change" listener="#{sqlBuilderController.loadJoinColumns}" update="msg dtbJoins"/>
                             </p:selectOneMenu>
                         </p:column>
                         <p:column headerText="JOIN" width="100">
-                            <p:selectOneMenu value="#{item.join}" rendered="#{not item.isfrom}">
+                            <p:selectOneMenu value="#{item.join}">
                                 <f:selectItem itemValue="INNER JOIN" itemLabel="INNER" />
                                 <f:selectItem itemValue="LEFT OUTER" itemLabel="LEFT" />
-                            </p:selectOneMenu>                            
+                            </p:selectOneMenu>
                         </p:column>
                         <p:column headerText="ALIAS" width="80">
-                            <p:inputText readonly="true" value="t" style="width: 65px" />
+                            <p:inputText readonly="true" value="#{item.alias}" style="width: 65px" />
                         </p:column>
                         <p:column headerText="Condition">
-                            
+                            <ui:repeat var="f" value="#{item.whereJoins}">      
+                                <h:panelGrid columns="6" class="subtable">
+                                    <p:outputLabel value="ON" style="padding: 8px; color: #2e6e9e"/>
+                                    <p:selectOneMenu value="#{f.column_one}" style="width: 150px">
+                                        <f:selectItem itemValue="" itemLabel="Chưa chọn" />
+                                        <f:selectItems value="#{sqlBuilderController.columnItems}" var="c" itemLabel="#{c.physical}" itemValue="#{c}"/>
+                                    </p:selectOneMenu>
+                                    <p:selectOneMenu value="#{f.condition}">
+                                        <f:selectItem itemValue="eq" itemLabel="eq" />
+                                    </p:selectOneMenu>
+                                    <p:selectOneMenu value="#{f.column_two}" style="width: 150px">
+                                        <f:selectItem itemValue="" itemLabel="Chưa chọn" />
+                                        <f:selectItems value="#{item.columns}" var="c2" itemLabel="#{c2.physical}" itemValue="#{c2}"/>
+                                    </p:selectOneMenu>
+                                    <p:commandButton icon="#{bundle.CreateIcon}" />
+                                </h:panelGrid>
+                            </ui:repeat>
+                        </p:column>
+                        <p:column width="40">
+                            <p:commandButton icon="#{bundle.ClearIcon}"/>
                         </p:column>
                     </p:dataTable>
                 </p:panel>
@@ -57,7 +117,7 @@
                 <f:facet name="header">
                     <p:outputLabel value="WHERE" style="padding: 8px; color: #2e6e9e"/>
                     <p:spacer height="1" width="10"/>
-                    <p:commandButton icon="pi pi-plus" value="New"/>
+                    <p:commandButton icon="#{bundle.CreateIcon}"/>
                 </f:facet>
                 <p:panel id="pnlWhere">
 
@@ -68,7 +128,7 @@
                 <f:facet name="header">
                     <p:outputLabel value="SELECT" style="padding: 8px; color: #2e6e9e"/>
                     <p:spacer height="1" width="10"/>
-                    <p:commandButton icon="pi pi-plus" value="New"/>
+                    <p:commandButton icon="#{bundle.CreateIcon}"/>
                 </f:facet>
 
             </p:panel>
@@ -77,7 +137,7 @@
             <pe:layoutPane position="south" closable="false" resizable="false">
                 <h:panelGrid columns="2" style="padding: 0 10px 0 10px">
                     <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" />                    
-                    <p:commandButton value="#{bundle.CreateLabel}" id="btnExec"/>
+                    <p:commandButton icon="#{bundle.FunctionIcon}" value="#{bundle.CreateLabel}" id="btnExec" actionListener="#{sqlBuilderController.exec}"/>
                 </h:panelGrid>
             </pe:layoutPane>
         </ui:define>

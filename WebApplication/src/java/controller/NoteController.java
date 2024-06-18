@@ -36,7 +36,7 @@ public class NoteController extends BaseController {
     
     @Getter
     @Setter
-    private Long project = 0L;
+    private Long project = 1L;
         
     @Inject
     private ProjectGateway projectGateway;
@@ -51,6 +51,8 @@ public class NoteController extends BaseController {
         projectItems = SelectItemFactory.INSTANCE.create(targets, false,
                     (row) -> row.getId(),
                     (row) -> row.getProjectName());
+        
+        noteGateway.GetNote(project, type).ifPresent(result -> note = result.getNote_data());
 
         getSession().put(C_SESSION_KEY_SCR, SRC_ID);
         return Const.SCR_INFO.get(SRC_ID);

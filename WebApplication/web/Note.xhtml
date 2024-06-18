@@ -37,7 +37,8 @@
             </p:panel>
             <p:spacer height="2" />
             <p:panel id="pnlDtl">
-                <p:textEditor id="txtNote" secure="false" allowLinks="true" allowBlocks="true" allowFormatting="true" allowImages="true" value="#{noteController.note}"
+                <p:outputLabel value="#{noteController.note}" escape="false" />
+                <p:textEditor rendered="false" id="txtNote" secure="false" allowLinks="true" allowBlocks="true" allowFormatting="true" allowImages="true" value="#{noteController.note}"
                               height="600px">
 
                 </p:textEditor>

@@ -22,7 +22,7 @@ public class NoteIF {
     
     private Long project_id;
     
-    @Column(name = "note_type")
+    @Column(name = "note_type", length = 2)
     private String note_type;
     
     @Column(name = "note_data", columnDefinition = "text")

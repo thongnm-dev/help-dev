@@ -12,7 +12,9 @@ public class Const {
 
     public static final Map<String, String> SCR_INFO = new HashMap<String, String>() {
         {
-            put("RULE", "/WorkingRule.xhtml");
+            put("TASK", "/Task.xhtml");
+            put("NOTE", "/Note.xhtml");
+            
             put("DBTOOLS", "/DbToolBelt.xhtml");
             put("MST", "/Mst.xhtml");
             put("SCR_TOOL", "/SourceToolBelt.xhtml");
@@ -20,7 +22,6 @@ public class Const {
             put("SQL_TOOL", "/SqlToolBelt.xhtml");
             put("TABLE", "/Table.xhtml");
             put("TABLE_COL", "/TableColumn.xhtml");
-
             put("DOMAIN", "/Domain.xhtml");
 
         }

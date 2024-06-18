@@ -12,31 +12,12 @@
 
     <ui:composition template="/templates/window.xhtml">
         <ui:define name="body">
-            <p:panel header="Công cụ hỗ trợ" toggleable="true" rendered="false">
-
-                <p:panel header="Phát triển">
-                    <h:panelGrid columns="3" >
-                        <p:row>
-                            <p:column >
-                                <p:commandButton value="Kiểm tra qui ước coding" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('SCR_CHK')}"/>
-                            </p:column>
-                            <p:column >
-                                <p:commandButton value="Kiểm tra unit test" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('UT_CHK')}"/>
-                            </p:column>
-                        </p:row>
-                    </h:panelGrid>
-                    <p:separator/>
-                    <h:panelGrid columns="3" >
-                        <p:row>
-                            <p:column >
-                                <p:commandButton value="Sinh source mẫu"  style="margin: 0 10px 0 0" action="#{topMenuController.openForm('SCR_TOOL')}"/>
-                            </p:column>
-                            <p:column >
-                                <p:commandButton value="SQL Text ⇒ JAVA Code" style="margin: 0 10px 0 0" action="#{topMenuController.openForm('SQL_TOOL')}"/>
-                            </p:column>
-                        </p:row>
-                    </h:panelGrid>
-                </p:panel>
+            <p:panel header="Công cụ hỗ trợ" toggleable="true">
+                <p:menubar>
+                    <p:menuitem value="SQL ⇒ JAVA" icon="#{bundle.FunctionIcon}" action="#{topMenuController.openForm('SQL_TOOL')}"/>
+                    <p:menuitem value="Task" icon="#{bundle.FunctionIcon}" action="#{topMenuController.openForm('TASK')}"/>
+                    <p:menuitem value="Note" icon="#{bundle.FunctionIcon}" action="#{topMenuController.openForm('NOTE')}"/>
+                </p:menubar>
             </p:panel>
             <p:spacer height="5"/>
             <p:panel header="Dự án" toggleable="true">
@@ -78,7 +59,6 @@
                 </p:dataTable>
                 </p:panel>
             </p:panel>
-           
         </ui:define>
     </ui:composition>
 </html>

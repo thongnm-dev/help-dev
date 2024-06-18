@@ -1,6 +1,5 @@
 package entity;
 
-import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,31 +10,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Table(name = "t_func")
+@Table(name = "t_note")
 @Entity
 @Getter
 @Setter
 @ToString
-public class FuncIf implements Serializable {
-
+public class NoteIF {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "func_name")
-    private String funcName;
-
-    @Column(name = "return_value")
-    private String returnValue;
-
-    @Column(name = "func_param")
-    private String params;
-
-    @Column(name = "func_comment")
-    private String funcComment;
-
-    @Column(name = "func_comment_vn")
-    private String funcCommentVn;
-
+    
     private Long project_id;
+    
+    @Column(name = "note_type")
+    private String note_type;
+    
+    @Column(name = "note_data", columnDefinition = "text")
+    private String note_data;
 }

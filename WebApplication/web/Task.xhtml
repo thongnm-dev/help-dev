@@ -8,13 +8,20 @@
       xmlns:p="http://primefaces.org/ui">
 
     <f:metadata>
-        <f:viewAction action="#{workingRuleController.init()}" />
+        <f:viewAction action="#{taskController.init()}" />
     </f:metadata>
 
     <ui:composition template="/templates/window_base.xhtml">
         <ui:define name="content_title">
-            <h:outputLabel>Các rule chung của dự án</h:outputLabel>
-        </ui:define>
 
+        </ui:define>
+        <ui:define name="container">
+            <p:panel header="#{bundle.FstSearch}" toggleable="true">
+            </p:panel>
+            <p:spacer height="2" />
+            <p:panel id="pnlDtl">
+                
+            </p:panel>
+        </ui:define>
     </ui:composition>
 </html>

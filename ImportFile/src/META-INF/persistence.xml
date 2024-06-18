@@ -5,9 +5,9 @@
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
         <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-        <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/dev"/>
-        <property name="jakarta.persistence.jdbc.user" value="beuser"/>
-        <property name="jakarta.persistence.jdbc.password" value="admin@123"/>
+        <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://ess-dev-db-cluster-instance-1.c7eauce8wej3.ap-northeast-1.rds.amazonaws.com:5432/EssNewMoela"/>
+        <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+        <property name="jakarta.persistence.jdbc.password" value="#ESSmowner41!"/>
         <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
         <property name="jakarta.persistence.query.timeout" value="600000"/>
     </properties>

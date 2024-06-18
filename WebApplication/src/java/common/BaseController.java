@@ -74,7 +74,7 @@ public class BaseController implements Serializable {
 
     protected void addErrorAndRequired(String pMainForm, String pComponentId, String pMsg) {
         setErrorComponent(pMainForm, pComponentId);
-        addMessage(FacesMessage.SEVERITY_ERROR, pMsg);
+        ctx().facesContext().addMessage(pComponentId, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", pMsg));
     }
 
     protected void addErrorMsg(String pMsg) {

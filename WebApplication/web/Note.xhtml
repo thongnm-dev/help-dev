@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:metadata>
+        <f:viewAction action="#{noteController.init()}" />
+    </f:metadata>
+
+    <ui:composition template="/templates/window_base.xhtml">
+        <ui:define name="content_title">
+
+        </ui:define>
+        <ui:define name="container">
+            <style>
+                .ql-toolbar {
+                    stroke: black;
+                }
+            </style>
+            <p:panel header="#{bundle.FstSearch}" toggleable="true">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Project" />
+                    <p:selectOneMenu value="#{noteController.project}" id="cbProject">
+                        <f:selectItems value="#{noteController.projectItems}" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Phase"/>
+                    <p:selectOneRadio value="#{noteController.type}" id="cbType">
+                        <f:selectItem itemValue="1" itemLabel="PD"/>
+                        <f:selectItem itemValue="2" itemLabel="PG"/>
+                        <f:selectItem itemValue="3" itemLabel="PCL"/>
+                    </p:selectOneRadio>
+                </h:panelGrid>
+            </p:panel>
+            <p:spacer height="2" />
+            <p:panel id="pnlDtl">
+                <p:textEditor id="txtNote" secure="false" allowLinks="true" allowBlocks="true" allowFormatting="true" allowImages="true" value="#{noteController.note}"
+                              height="600px">
+
+                </p:textEditor>
+            </p:panel>
+        </ui:define>
+        <ui:define name="Func">
+            <pe:layoutPane position="south" closable="false" resizable="false">
+                <h:panelGrid columns="2" style="padding: 0 10px 0 10px">
+                    <p:commandButton icon="#{bundle.BackIcon}" value="#{bundle.BackLabel}" />
+                    <p:commandButton icon="#{bundle.SaveIcon}" value="#{bundle.CreateLabel}" action="#{noteController.save()}"/>
+                </h:panelGrid>
+            </pe:layoutPane>
+        </ui:define>
+    </ui:composition>
+</html>

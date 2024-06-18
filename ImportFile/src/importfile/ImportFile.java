@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -38,9 +39,9 @@ public class ImportFile {
 
     private static final Map<String, String> properties = new HashMap<String, String>() {
         {
-            put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://localhost:5432/dev");
-            put(EntityManagerProperties.JDBC_USER, "beuser");
-            put(EntityManagerProperties.JDBC_PASSWORD, "admin@123");
+            put(EntityManagerProperties.JDBC_URL, "jdbc:postgresql://192.168.10.64:5432/ESS");
+            put(EntityManagerProperties.JDBC_USER, "mowner01");
+            put(EntityManagerProperties.JDBC_PASSWORD, "mowner01");
             put("eclipselink.jdbc.bind-parameters", "false");
         }
     };
@@ -52,7 +53,7 @@ public class ImportFile {
         if (StringUtils.equals("1", args[0])) {
             tableLayout(args);
         } else if (StringUtils.equals("2", args[0])) {
-            setting(args);
+            importMstData(args);
         }
     }
 
@@ -284,7 +285,7 @@ public class ImportFile {
                                             continue;
                                         }
 
-                                        if (row.getCell(0) == null) {
+                                        if (row.getCell(0) == null || row.getRowNum() > 3362) {
                                             break;
                                         }
 
@@ -292,35 +293,99 @@ public class ImportFile {
                                             row.getCell(i).setCellType(CellType.STRING);
                                         }
                                         
-                                        Map<String, Object> mstData = new HashMap<>();
+                                        if (StringUtils.isBlank(row.getCell(1).getStringCellValue())
+                                                || StringUtils.isBlank(row.getCell(3).getStringCellValue())
+                                                || StringUtils.length(row.getCell(3).getStringCellValue()) > 10) {
+                                            continue;
+                                        }
+                                        
+                                        Map<String, Object> mstData = new LinkedHashMap<>();
                                         mstData.put("hny_skb_cd", row.getCell(1).getStringCellValue());
                                         mstData.put("hny_skb_name", row.getCell(2).getStringCellValue());
                                         mstData.put("hny_cdt", row.getCell(3).getStringCellValue());
-                                        mstData.put("hny_skb_hssg_kbn", row.getCell(4).getStringCellValue());
+                                        mstData.put("hny_skb_hssg_kbn", StringUtils.substring(row.getCell(4).getStringCellValue(), 0, 1));                                        
                                         mstData.put("hnyif_1", row.getCell(5).getStringCellValue());
                                         mstData.put("hnyif_2", row.getCell(6).getStringCellValue());
                                         mstData.put("hnyif_3", row.getCell(7).getStringCellValue());
                                         mstData.put("hnyif_4", row.getCell(8).getStringCellValue());
                                         mstData.put("hnyif_5", row.getCell(9).getStringCellValue());
-                                        mstData.put("nkord", row.getCell(10).getStringCellValue());
-                                        mstData.put("syu_kbn", row.getCell(11).getStringCellValue());
+                                        mstData.put("nkord", null);
+                                        if (StringUtils.isBlank(row.getCell(10).getStringCellValue()) && StringUtils.isNumeric(row.getCell(10).getStringCellValue())) {
+                                            mstData.put("nkord", new BigDecimal(row.getCell(10).getStringCellValue()));
+                                        }
+                                        mstData.put("syu_kbn", " ");
                                         
                                         String jsonStr = mapper.writeValueAsString(mstData);
                                         System.out.println(jsonStr);
+                                        InsertMstTable(manager, mstData);
                                         
-                                        InsertMstTable(manager, jsonStr);
+//                                        InsertMstTable(manager, jsonStr);
                                     }
                                 }
 
                             }
                             manager.getTransaction().commit();
                         } catch (Exception ex) {
+                            System.err.println(ex.getMessage());
                             manager.getTransaction().rollback();
                         }
                     });
         }
     }
 
+    private static void InsertMstTable(EntityManager manager, Map<String, Object> param) {
+        StringBuilder wSqlstr = new StringBuilder();
+
+        wSqlstr.append(" INSERT "); 
+        wSqlstr.append(" INTO essnewmoela.kukm_hnyif( "); 
+        wSqlstr.append("     hny_skb_cd "); 
+        wSqlstr.append("   , hny_skb_name "); 
+        wSqlstr.append("   , hny_cdt "); 
+        wSqlstr.append("   , hny_skb_hssg_kbn "); 
+        wSqlstr.append("   , hnyif_1 "); 
+        wSqlstr.append("   , hnyif_2 "); 
+        wSqlstr.append("   , hnyif_3 "); 
+        wSqlstr.append("   , hnyif_4 "); 
+        wSqlstr.append("   , hnyif_5 "); 
+        wSqlstr.append("   , nkord "); 
+        wSqlstr.append("   , syu_kbn "); 
+        wSqlstr.append("   , gymev_name "); 
+        wSqlstr.append("   , tr_ymd_time "); 
+        wSqlstr.append("   , tr_usr "); 
+        wSqlstr.append("   , tr_pg "); 
+        wSqlstr.append("   , upd_ymd_time "); 
+        wSqlstr.append("   , upd_usr "); 
+        wSqlstr.append("   , upd_pg "); 
+        wSqlstr.append(" ) VALUES ( "); 
+        wSqlstr.append("     ?hny_skb_cd "); 
+        wSqlstr.append("   , ?hny_skb_name "); 
+        wSqlstr.append("   , ?hny_cdt "); 
+        wSqlstr.append("   , ?hny_skb_hssg_kbn "); 
+        wSqlstr.append("   , ?hnyif_1 "); 
+        wSqlstr.append("   , ?hnyif_2 "); 
+        wSqlstr.append("   , ?hnyif_3 "); 
+        wSqlstr.append("   , ?hnyif_4 "); 
+        wSqlstr.append("   , ?hnyif_5 "); 
+        wSqlstr.append("   , ?nkord "); 
+        wSqlstr.append("   , ?syu_kbn "); 
+        wSqlstr.append("   , 'BATCH' "); 
+        wSqlstr.append("   , now() "); 
+        wSqlstr.append("   , 'SYSTEM' "); 
+        wSqlstr.append("   , 'BATCH' "); 
+        wSqlstr.append("   , now() "); 
+        wSqlstr.append("   , 'SYSTEM' "); 
+        wSqlstr.append("   , 'BATCH' "); 
+        wSqlstr.append(" ) "); 
+
+        Query query = manager.createNativeQuery(wSqlstr.toString());
+        
+        for (Map.Entry<String, Object> entry : param.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        query.executeUpdate();
+    }
+    
     private static void InsertMstTable(EntityManager manager, String json) {
         StringBuilder wSqlstr = new StringBuilder();
 

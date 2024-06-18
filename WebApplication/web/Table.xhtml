@@ -22,9 +22,6 @@
                     </p:selectOneRadio> 
                 </h:panelGrid> 
             </p:panel>
-            <p:blockUI block="body" trigger="cbTarget btnRefresh" widgetVar="buiBasic">
-                <p:graphicImage value="/resources/imgs/icon-loadinfo.gif"/>
-            </p:blockUI>
             <p:spacer height="2" />
             <p:panel id="pnlDataTable">
                 <p:dataTable var="item" value="#{tableController.tables}" id="tblData" rowIndexVar="idx"
